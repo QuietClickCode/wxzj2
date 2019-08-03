@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.comon.dao.IdUtilDao">
+	
+	<!-- 
+		获取数据库表当前可用编码，该方法只适用于获取格式为01、001、0001、00001、000001、00000001、00000001的编码
+		注意：数据库表中必须含有bm字段
+	-->
+	<select id="getNextBm" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[  
+	    {call P_GetNextBm(
+	    	#{tab, mode=IN, jdbcType=VARCHAR}, 
+	    	#{result, mode=OUT, jdbcType=VARCHAR}
+	    )}
+	]]>  
+	</select>  
+	
+	<!-- 
+		获取数据库表当前可用ID，该方法只适用于获取格式为01、001、0001、00001、000001、00000001、00000001的编码
+		注意：数据库表中必须含有bm字段
+	-->
+	<select id="getNextId" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[  
+	    {call P_GetNextId(
+	    	#{tab, mode=IN, jdbcType=VARCHAR}, 
+	    	#{result, mode=OUT, jdbcType=VARCHAR}
+	    )}
+	]]>  
+	</select>  
+	
+</mapper>

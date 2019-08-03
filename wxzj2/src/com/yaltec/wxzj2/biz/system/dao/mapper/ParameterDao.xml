@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.ParameterDao">
+	
+	<!-- 查询所有系统参数信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.Parameter">
+		<![CDATA[ select * from Sysparameters order by bm ]]>
+	</select>
+
+	<!-- 禁用所有的系统参数 -->
+	<update id="closeAll">
+		<![CDATA[ update Sysparameters set sf=0 ]]>
+	</update>
+	
+	<!-- 启用系统参数 -->
+	<update id="open" parameterType="java.util.List">
+		begin
+		<foreach collection="list" item="bm" index="index" separator=";">
+			<![CDATA[UPDATE Sysparameters]]>
+			<set>
+				<![CDATA[sf=1]]>
+			</set>
+			<where>
+				<![CDATA[bm=#{bm}]]>
+			</where>
+		</foreach>
+		;end;
+	</update>
+	
+	<!-- 根据编码查询-->
+	<select id="findByBm" resultType="com.yaltec.wxzj2.biz.system.entity.Parameter">
+		<![CDATA[ select * from Sysparameters where bm=#{bm} ]]>
+	</select>
+</mapper>

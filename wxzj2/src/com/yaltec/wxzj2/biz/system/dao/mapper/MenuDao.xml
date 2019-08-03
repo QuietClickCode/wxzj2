@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.MenuDao">	
+	<!--定义menuMap-->
+	<resultMap id="menuMap" type="com.yaltec.wxzj2.biz.system.entity.Menu">
+		<result column="id" 			property="id" />		
+		<result column="parentId" 		property="parentId" />
+		<result column="modl_name" 		property="modl_name" />
+		<result column="modl_url" 		property="modl_url" />
+		<result column="modl_remark" 	property="modl_remark" />
+		<result column="modl_pic" 		property="modl_pic" />
+		<!-- ofType指定children集合中的对象类型  -->
+		<collection property="children" ofType="com.yaltec.wxzj2.biz.system.entity.Menu" javaType="ArrayList" column="id" select="getChildren">
+		</collection>
+	</resultMap>
+	
+	<select id="getChildren" resultType="com.yaltec.wxzj2.biz.system.entity.Menu">
+	<![CDATA[select * from [module] where parentId=#{id,jdbcType=INTEGER} order by id ]]>
+	</select>
+
+	<!-- 获取已授权模块-->
+	<resultMap id="menuHMap" type="com.yaltec.wxzj2.biz.system.entity.Menu">
+		<result column="roleId" 		property="roleId" />
+		<result column="id" 			property="id" />
+		<result column="parentId" 		property="parentId" />
+		<result column="modl_name" 		property="modl_name" />
+		<result column="modl_url" 		property="modl_url" />
+		<result column="modl_remark" 	property="modl_remark" />
+		<result column="modl_pic" 		property="modl_pic" />
+		<collection property="children" ofType="com.yaltec.wxzj2.biz.system.entity.Menu" javaType="ArrayList" column="{id=id,roleId=roleId}" select="getHChildren">
+		</collection>
+	</resultMap>
+	
+	<select id="getHChildren" parameterType="java.util.HashMap"  resultType="com.yaltec.wxzj2.biz.system.entity.Menu">
+	<![CDATA[
+		select * from [module] where id in (select mdid from permission where roleId=#{roleId}) and parentId=#{id} order by id
+	]]>
+	</select>	
+	
+	<!--根据角色id获取菜单权限-->
+	<select id="findAll" resultMap="menuHMap" parameterType="String">
+		<![CDATA[
+		select a.*,roleId from [module]a,[permission]b where a.id=b.mdid and a.parentId=0  and roleid=#{roleid} order by a.id
+	]]>	
+	</select>
+     
+</mapper>

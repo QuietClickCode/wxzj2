@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.file.dao.ResourceDao">
+ 
+   <!--保存文件信息-->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			 {call P_ResourceSave_BS(
+			 	#{id,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{module,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{moduleid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{name,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{size,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{suffix,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{storeType,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{uuid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{note,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{archive,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{pic,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			    #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!-- 根据id删除文件信息-->
+	<delete id="deleteById" parameterType="String">
+		<![CDATA[update  resource set valid=0 where id=#{id} ]]>
+	</delete>
+	
+	<!-- 修改案卷信息-->
+	<update id="updateArchive" parameterType="java.util.Map">
+		<![CDATA[update resource set archive=#{archive} where id in ]]>
+		<foreach collection="ids" index="index" item="id" open="(" separator=", " close=")">
+			<![CDATA[#{id}]]>
+		</foreach>
+	</update>
+	
+	<!--根据编号获取文件信息-->
+	<select id="getResourceById" parameterType="String" 
+			resultType="com.yaltec.wxzj2.biz.file.entity.Resource" >
+		<![CDATA[ select * from resource where valid=1 and id=#{id} ]]>
+	</select>
+	
+	<!--根据paramMap获取数据-->
+	<select id="getResourceByModule" parameterType="java.util.Map" 
+			resultType="com.yaltec.wxzj2.biz.file.entity.QueryResource" >
+		<![CDATA[
+			select resource.*,ISNULL(archiveName,'')archiveName,ISNULL(vlname,'')vlname from resource  left join 
+			(select archives.id,archives.name archiveName,v.vlname from volumelibrary v,archives where archives.vlid=v.id )temp
+			on archive=temp.id where valid=1 and  module=#{module}   
+		]]>
+		<if test="name != null and '' != name">
+			<![CDATA[ and name like '%'+#{name}+'%' ]]>	
+		</if>
+		<if test="archive != null and '' != archive">
+			<![CDATA[ and archive=#{archive} ]]>	
+		</if>
+		<if test="(archive == null or '' == archive) and volumelibraryid !=null and '' !=volumelibraryid">
+			<![CDATA[ and archive in (select id from archives where vlid=#{volumelibraryid} ) ]]>	
+		</if>
+		<![CDATA[ order by resource.id]]>	
+	</select>
+	
+	<!--根据moduleid获取数据-->
+	<select id="findByModuleid" parameterType="java.util.Map" 
+			resultType="com.yaltec.wxzj2.biz.file.entity.QueryResource" >
+		<![CDATA[ select * from resource where valid=1 and  module=#{module} and moduleid=#{moduleid} order by id desc]]>
+	</select>
+	
+	<!--根据archive获取数据-->
+	<select id="getResourceByArchive" parameterType="String" 
+			resultType="com.yaltec.wxzj2.biz.file.entity.Resource" >
+		<![CDATA[ select * from resource where valid=1 and  archive=#{archive} order by id desc]]>
+	</select>
+	
+	<!--根据archiveList获取数据-->
+	<select id="getResourceByArchiveList" parameterType="java.util.List" 
+			resultType="com.yaltec.wxzj2.biz.file.entity.Resource" >
+		<![CDATA[ select * from resource ]]>
+		<where>
+			<![CDATA[ valid=1 and  ]]>
+			<foreach collection="list" index="index" item="archive" open="(" separator="OR " close=")">
+				<![CDATA[archive=#{archive}]]>
+			</foreach>
+		</where>
+		<![CDATA[ order by id desc ]]>
+	</select>
+	
+</mapper>

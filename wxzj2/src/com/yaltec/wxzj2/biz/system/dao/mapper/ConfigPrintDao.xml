@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.ConfigPrintDao">
+	
+	<!-- 按打印标识检查打印配置信息 -->
+	<select id="queryConfigPrintByModuleKey" resultType="com.yaltec.wxzj2.biz.system.entity.ConfigPrint">
+        <![CDATA[select * from configprint where moduleKey=#{moduleKey} order by convert(int,num) ]]>
+	</select>
+	
+	<!-- 判断打印标识在数据库是否存在 -->
+	<select id="ifNameExists" resultType="java.lang.String" parameterType="java.util.Map">
+		<![CDATA[
+			select count(*) from configprint where name=#{para}
+		]]>
+	</select>
+
+	<!-- 判断打印标识在数据库是否存在 -->
+	<select id="ifModuleKeyExists" resultType="java.lang.String" parameterType="java.util.Map">
+		<![CDATA[select count(*) from configprint where moduleKey=#{para}]]>
+	</select>
+	
+	<!-- 判断属性标识在数据库是否存在 -->
+	<select id="ifPropertyExists" parameterType="java.util.Map" resultType="java.lang.String">
+	<![CDATA[     
+		select count(*) from configprint where moduleKey=#{moduleKey} and property=#{property}
+	]]>
+	</select>
+	
+	<!-- 按moduleKey删除打印配置文件 -->
+	<delete id="delConfigPrint" parameterType="java.util.Map">
+		delete from ConfigPrint where moduleKey=#{moduleKey}
+	</delete>
+	
+	<!-- 保存打印配置文件 -->
+	<insert id="saveConfigPrint" parameterType="java.util.Map" >
+		insert into ConfigPrint(id,moduleKey,name,property,propertyName,num,fontsize,color,x,y,note,userid,username)
+		values(newid(),#{moduleKey},#{name},#{property},#{propertyName},#{num},#{fontsize},#{color},#{x},#{y},#{note},#{userid},#{username})
+	</insert>
+</mapper>	

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.TransferADDao">
+    
+    
+    <!-- 获取本次批准金额（支取划拨）   -->
+    <select id="getbcpzjeForTransferAD" parameterType="java.lang.String" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD">
+        <![CDATA[
+            select isnull(sum(z006),0) as ftje,isnull(sum(z023),0) zcje,isnull(sum(z004),0) zqbj,isnull(sum(z005),0) zqlx from SordineDrawForRe where z011 = #{bm}
+        ]]>
+    </select>
+    <!-- 获取已支取分摊的房屋信息（支取划拨页面）  -->
+    <select id="getShareADForTransferAD" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.draw.entity.TransferAD"  statementType="CALLABLE">
+        <![CDATA[
+            {call P_SordineOwnerDrawQ(
+                #{z008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 查询支取划拨   -->
+    <select id="execReturnTransferAD" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.draw.entity.TransferAD">
+        <![CDATA[
+            ${sqlstr}
+        ]]>
+    </select>
+    <!-- 保存支取划拨 -->
+    <insert id="saveTransferAD" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+        {call P_SordineDrawTransfer(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z001,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{z002,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z003,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zph,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{pzje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </insert>
+    
+    <!-- 删除待划拨的分摊信息，并将申请退回到支取申请流程 -->
+	<update id="delForTransferAD" parameterType="java.util.Map">
+	<![CDATA[
+		update SordineApplDraw set status='0',slzt='正常受理',hbzt='不许划拨',zqbh='',pzje=0,bcsqje= bcsqje - #{bcpz}   
+		where bm = #{bm} and bm in (select z011 from SordineDrawForRe where isnull(z007,'')='')
+
+		update TMaterialsDetail set BusinessNO='' where ApplyNO=#{bm} and BusinessNO=#{ywid}
+		delete SordineFVoucher where p004= #{ywid} and isnull(p005,'')=''
+		delete SordineDrawForRe where z008= #{ywid} and isnull(z007,'')=''
+		delete SordineContribution where BusinessNO = #{ywid}  and ApplyNO = #{bm}
+	]]>
+	</update>
+</mapper>

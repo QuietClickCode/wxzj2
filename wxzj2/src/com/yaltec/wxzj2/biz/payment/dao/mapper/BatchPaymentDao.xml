@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.payment.dao.BatchPaymentDao">
+	<!--批量交款查询-->
+	<select id="queryQryUnitSterilisation" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="com.yaltec.wxzj2.biz.payment.entity.QryHouseUnit">
+		<![CDATA[
+			{call P_queryUnitSterilisation(
+				#{bdate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{edate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{je,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+			)}
+		]]>
+	</select>
+	
+	<!--根据开发公司获取余额-->
+	<select id="getDWYE" parameterType="String" resultType="String">
+		<![CDATA[
+		select (select isnull(sum(p009),0) p009 from SordineFVoucher where isnull(p005,'')<>'' and substring(p018,4,5)=#{kfgsbm} and  
+			left(p018,3)=substring((select SubjectCodeFormula from SordineSetBubject where SubjectID='204'),2,3) 
+		)
+		-
+		(select isnull(sum(p008),0) p008 from SordineFVoucher where substring(p018,4,5)=#{kfgsbm} and  
+			left(p018,3)=substring((select SubjectCodeFormula from SordineSetBubject where SubjectID='204'),2,3) 
+		) ye
+	]]>
+	</select>
+	
+	<!--保存批量交存-->
+	<select id="saveImportBatchPaymentExcel" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call p_savePljk_BS(
+				#{type,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{tempCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{kfgsbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{kfgsmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},	
+				#{dwye,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{mxze,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{zpje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},	
+				#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},
+				#{rNote,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!--删除批量交存-->
+	<select id="delBatchPayment" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_RecordDel(
+				#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+</mapper>

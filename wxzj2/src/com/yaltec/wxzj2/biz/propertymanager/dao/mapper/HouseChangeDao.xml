@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertymanager.dao.HouseChangeDao">
+	<!-- 产权管理 — 执行房屋变更    -->
+	<select id="executeChange" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call p_execHouseChange(
+				#{w014,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!-- 产权管理 - 房屋变更  — 资金分摊     -->
+	<select id="share" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call p_houseChangeShare(
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+    <!-- 房屋变更记录查询 -->
+    <select id="queryHouseChange" parameterType="java.util.Map" resultType="java.util.Map"  statementType="CALLABLE">
+    	<![CDATA[
+			{call P_QueryHouseChange(
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{result,javaType=java.lang.Integer,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+    </select>
+	<!-- 查询临时表中的数据  -->
+    <select id="query" parameterType="java.util.Map" resultType="java.util.Map">
+    	select * from temp_houseChange where type=#{type} and lybh=#{lybh} and userid=#{userid}
+    </select>
+	
+	<!-- 查询 执行查询语句  -->
+    <select id="execQuery" parameterType="java.util.Map" resultType="java.util.Map">
+    	${sqlstr}
+    </select>
+	
+	<!-- 执行修改或插入语句  -->
+    <update id="execUpdate" parameterType="java.util.Map">
+    	${sqlstr}
+    </update>
+    
+    <!-- 产权管理 — 按业务编号删除房屋变更业务    -->
+	<select id="delBusinessByP004" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_DelBusinessByP004(
+				#{p004,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+</mapper>	

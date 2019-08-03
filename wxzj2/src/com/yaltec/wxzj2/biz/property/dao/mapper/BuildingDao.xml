@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.BuildingDao">
+	
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.property.entity.Building">
+	<![CDATA[
+		select a.* from SordineBuilding a, NeighBourHood b where a.xqbh=b.bm
+	]]>
+		<if test="unitCode != null and '' != unitCode">
+		<![CDATA[and a.UnitCode =#{unitCode}]]>	
+		</if>
+		<if test="kfgsbm != null and '' != kfgsbm">
+		<![CDATA[and a.kfgsbm =#{kfgsbm}]]>	
+		</if>
+		<if test="xqbh != null and '' != xqbh">
+		<![CDATA[and a.xqbh =#{xqbh}]]>	
+		</if>
+		<if test="xmbm != null and '' != xmbm">
+		<![CDATA[and b.xmbm =#{xmbm}]]>	
+		</if>
+		<if test="lymc != null and '' != lymc">
+		<![CDATA[and a.lymc like '%${lymc}%']]>	
+		</if>
+		<if test="address != null and '' != address">
+		<![CDATA[and a.address like '%${address}%']]>	
+		</if>
+	<![CDATA[ order by a.xqbh,len(a.lymc),a.lymc]]>
+	</select>
+	
+	<select id="findByLybh" parameterType="com.yaltec.wxzj2.biz.property.entity.Building" resultType="com.yaltec.wxzj2.biz.property.entity.Building">
+	<![CDATA[select * from SordineBuilding where lybh=#{lybh}]]>
+	</select>
+	
+	<select id="find"  resultType="com.yaltec.wxzj2.biz.property.entity.Building">
+	<![CDATA[select top 1 * from SordineBuilding where xqbh=#{xqbh} order by lybh DESC]]>
+	</select>
+	
+	<select id="findByLymc" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.Building">
+	<![CDATA[select * from SordineBuilding where lymc=#{lymc}]]>
+	</select>
+	
+	<!-- 获取楼宇编码 -->
+	<select id="getBuildingBm" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call p_GetLybh(
+			#{bm,mode=IN,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=VARCHAR,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+	
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{ call P_BuildingSaveBS(
+			#{lybh,mode=IN,jdbcType=VARCHAR},
+			#{lymc,mode=IN,jdbcType=VARCHAR},
+			#{xqbh,mode=IN,jdbcType=VARCHAR},
+			#{xqmc,mode=IN,jdbcType=VARCHAR},
+			#{kfgsbm,mode=IN,jdbcType=VARCHAR},
+			#{kfgsmc,mode=IN,jdbcType=VARCHAR},
+			#{wygsbm,mode=IN,jdbcType=VARCHAR},
+			#{wygsmc,mode=IN,jdbcType=VARCHAR},
+			#{ywhbh,mode=IN,jdbcType=VARCHAR},
+			#{ywhmc,mode=IN,jdbcType=VARCHAR},
+			#{fwxzbm,mode=IN,jdbcType=VARCHAR},
+			#{fwxz,mode=IN,jdbcType=VARCHAR},
+			#{fwlxbm,mode=IN,jdbcType=VARCHAR},
+			#{fwlx,mode=IN,jdbcType=VARCHAR},
+			#{lyjgbm,mode=IN,jdbcType=VARCHAR},
+			#{lyjg,mode=IN,jdbcType=VARCHAR},
+			#{address,mode=IN,jdbcType=VARCHAR},
+			#{totalArea,mode=IN,jdbcType=DECIMAL},
+			#{totalCost,mode=IN,jdbcType=DECIMAL},
+			#{protocolPrice,mode=IN,jdbcType=DECIMAL},
+			#{unitNumber,mode=IN,jdbcType=SMALLINT},
+			#{layerNumber,mode=IN,jdbcType=SMALLINT},
+			#{houseNumber,mode=IN,jdbcType=SMALLINT},
+			#{useFixedYear,mode=IN,jdbcType=SMALLINT},
+			#{completionDate,mode=IN,jdbcType=DATE},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+	
+	
+	<!-- 删除楼宇信息  -->
+	<delete id="delBuilding" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_RecordDel(
+			#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</delete>
+    
+    
+	<!-- 获取房屋类型（根据楼宇编号） -->
+	<select id="getFwlxByBuilding" resultType="java.lang.String">
+	<![CDATA[
+		select fwlxbm from SordineBuilding where lybh = #{bm}
+	]]>
+	</select>
+	
+	<!-- 获取楼宇地址 -->
+	<select id="getAddressForBuilding" resultType="java.lang.String" parameterType="java.util.Map" >
+	<![CDATA[
+		select address+lymc from SordineBuilding where lybh=#{lybh}
+	]]>
+	</select>
+	
+	<!--根据开发公司获取小区-->
+	<select id="findXqByKfgs" parameterType="java.lang.String" resultType="com.yaltec.wxzj2.biz.property.entity.Building">
+	<![CDATA[select distinct xqbh,xqmc  from SordineBuilding where kfgsbm=#{kfgs}]]>
+	</select>
+	
+	<!-- 获取业委会信息放入select(根据小区编号) -->
+	<select id="queryIndustryByXqbh" parameterType="java.util.Map"
+			resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+	<![CDATA[
+		select top 1  bm,mc from COMMITtee where nbhdcode = #{xqbh}
+	]]>
+	</select>
+	
+</mapper>

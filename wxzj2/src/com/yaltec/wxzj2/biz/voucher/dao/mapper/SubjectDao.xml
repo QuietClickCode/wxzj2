@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.SubjectDao">
+	
+	<!--查询会计科目信息-->
+	<select id="findByItemId" parameterType="java.lang.String" statementType="CALLABLE" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.Subject" >
+	<![CDATA[
+		{call P_SordineBubjectQ(
+			#{itemId, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN}
+		)}
+	]]>
+	</select>
+	
+	<!--查询会计科目类别-->
+	<select id="findSubjectItem" resultType="com.yaltec.wxzj2.biz.voucher.entity.SubjectItem">
+	<![CDATA[ select * from SordineSetBubject order by SubjectID ]]>
+	</select>
+	
+</mapper>

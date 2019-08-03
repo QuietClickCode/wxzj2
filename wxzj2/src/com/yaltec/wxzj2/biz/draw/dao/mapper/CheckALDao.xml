@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.CheckALDao">
+	
+<!-- 查询销户初审信息-->
+    <select id="queryApplyLogout" parameterType="java.util.Map" 
+        resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyLogout">
+        <![CDATA[
+            {call P_ApplyLogoutQ_BS(
+                #{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 查询销户初审(初审退回,审核退回,拒绝受理)-->
+    <select id="queryApplyLogoutJ" parameterType="java.util.Map" 
+        resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyLogout">
+        <![CDATA[
+            {call P_ApplyLogoutQJ_BS(
+                #{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 提交销户初审-->
+    <select id="updtApplyLogout" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_SordineLogoutPass(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{slzt,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{status,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{hbzt,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sj,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{reson,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 返回申请-->
+    <select id="returnReviewAL" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_SordineLogoutPass(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{slzt,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{status,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{hbzt,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sj,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{reson,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+</mapper>

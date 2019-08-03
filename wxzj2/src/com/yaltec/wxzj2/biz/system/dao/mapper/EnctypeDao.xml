@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.EnctypeDao">
+	
+	<!-- 查询所有编码信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.Enctype">
+		<![CDATA[ select * from MYcode where mc like '%${mc}%' order by bm ]]>
+	</select>
+
+	<!-- 根据mc系统编码信息-->
+	<select id="findByMc" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Enctype">
+		<![CDATA[select * from MYcode where mc=#{mc}]]>
+	</select>
+	
+	<!--保存编码类型信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.system.entity.Enctype">
+		<![CDATA[insert into MYcode(bm,mc,ms) values(#{bm},#{mc},#{ms})]]>
+	</insert>
+	
+	<!-- 根据bm获取编码类型信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Enctype">
+	<![CDATA[select bm,mc,ms from MYcode where bm=#{bm}]]>
+	</select>
+	
+	<!-- 修改编码类型信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.system.entity.Enctype">
+	<![CDATA[update MYcode set mc=#{mc},ms=#{ms} where bm=#{bm}]]>
+	</update>
+	
+	<!-- 根据bm名称获取编码类型编码-->
+	<select id="findByBmMc" parameterType="com.yaltec.wxzj2.biz.system.entity.Enctype" resultType="String">
+		<![CDATA[SELECT bm FROM MYcode WHERE bm<>#{bm}  AND mc=#{mc}]]>
+	</select>
+</mapper>	

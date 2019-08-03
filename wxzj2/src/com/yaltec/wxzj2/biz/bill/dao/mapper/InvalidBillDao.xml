@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.InvalidBillDao">
+	
+	<!-- 查询作废票据信息-->
+	<select id="findAll" parameterType="java.util.Map"
+			resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoM">
+	<![CDATA[
+		select bm,pjh,sfqy,
+		sfuse,isnull(w013,'') w013,
+		sfzf, username, fingerprintData, regNo
+		from ReceiptInfoM                       
+	]]>		        
+		<where>
+			<if test="qsh != null">
+			<![CDATA[and pjh >= '${qsh}']]>	
+			</if>
+			<if test="zzh != null">
+			<![CDATA[and pjh <= '${zzh}']]>	
+			</if>
+			<if test="xszf != null">
+			<![CDATA[and convert(int,sfzf) >= convert(int,'${xszf}')]]>	
+			</if>
+			<if test="unitcode != null">
+			<![CDATA[and ('${unitcode}'='00' or yhbh=(select bankid from Assignment where bm='${unitcode}'))]]>	
+			</if>
+			<if test="regNo != null">
+			<![CDATA[and regNo like '%'+#{regNo}+'%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm,pjh]]>
+	</select>
+	
+	<!-- 根据bm,pjh获取作废票据信息-->
+	<select id="findByBmPjh" parameterType="String" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoM">
+	<![CDATA[select * from ReceiptInfoM where bm in (#{bm}) and pjh = #{pjh}]]>
+	</select>
+	
+	<!-- 保存票据作废信息-->
+	<update id="update" parameterType="java.util.Map">
+	<![CDATA[
+	     update ReceiptInfoM set sfuse=#{sfuse},sfzf=#{sfzf}, w013=#{w013} where bm = #{bm} and pjh= #{pjh} 
+         update SordinePaytoStore set w011='' where w011= #{pjh} 
+	]]>
+	</update>	 
+	
+	<!-- 保存重新启用的票据信息 -->
+    <update id="reUseInvalidBill" parameterType="java.util.Map">
+        <![CDATA[
+            update ReceiptInfoM set sfzf=0,sfuse=0,h013='' where bm = #{bm} and pjh in (#{pjh})
+            update SordinePaytoStore set w011='' where w011 in (#{pjh})
+        ]]>        
+    </update>
+    
+    <!--删除交款重启票据-->
+    <update id="reUseBillForJK" parameterType="java.util.Map">
+        <![CDATA[
+            update ReceiptInfoM set sfzf='0',sfuse='0',h013='' where pjh in (
+            	select w011 from SordinePaytoStore where w008=#{w008}
+  		]]>
+  		<if test="serialno != null and '' != serialno">
+			<![CDATA[ and serialno=#{serialno}]]>	
+		</if> 
+		<![CDATA[)]]> 
+    </update>
+    
+    <!-- 批量保存票据作废信息-->
+	<update id="batchInvalid" parameterType="java.util.Map">
+	<![CDATA[
+	     update ReceiptInfoM set sfuse=1,sfzf=1 where regNo = #{regNo} and pjh in (${pjh});
+         update SordinePaytoStore set w011='' where regNo = #{regNo} and w011 in (${pjh});
+	]]>
+	</update>
+</mapper>

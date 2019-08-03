@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryUnitForBDao">
+
+	<!--按单元余额查询返回map
+	<resultMap id="dyresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.QueryUnitForB">
+		<result column="lybh" 	    property="lybh" />
+		<result column="lymc" 	    property="lymc" />
+		<result column="h002" 		property="h002" />
+		<result column="jkje" 		property="jkje" />
+		<result column="zqje" 		property="zqje" />
+		<result column="bj" 		property="bj" />
+		<result column="lx" 		property="lx" />
+		<result column="ye" 		property="ye" />
+		<result column="mdate" 	    property="mdate" />
+	</resultMap>-->
+	
+	<!--单元余额查询-->
+	<select id="queryQueryUnitForB" parameterType="java.util.Map" statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.compositeQuery.entity.QueryUnitForB" >
+	    <![CDATA[  
+            {call P_UnitExcessQ_BS(
+            	#{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+            	#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+            	#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String}   
+            )}
+        ]]>
+	</select>	
+	
+	<!--单元余额查询-->
+	<select id="findQueryUnitForB" parameterType="java.util.Map" statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.compositeQuery.entity.QueryUnitForB" >
+	    <![CDATA[  
+            {call P_UnitExcessQ_BS(
+            	#{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+            	#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+            	#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String}
+            )}
+        ]]>
+	</select>	
+		
+	<!-- 按银行查询项目	 -->
+	<select id="queryProjectByBank" parameterType="java.util.Map" 
+			resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+		<![CDATA[
+			select d.xmbm bm,d.xmmc mc from SordineBuilding a,house_dw b,Assignment c,NeighBourHood d
+			where a.lybh=b.lybh and b.h049=c.bm and a.xqbh=d.bm and isnull(d.xmbm,'')<>''
+		]]>
+		<if test="yhbh != null and '' != yhbh">
+		<![CDATA[and bankid =#{yhbh}]]>	
+		</if>
+		group by d.xmbm,d.xmmc
+        order by  d.xmbm
+	</select>
+	
+	<!-- 按银行查询小区	 -->
+	<select id="queryCommunityByBank" parameterType="java.util.Map" 
+			resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+		<![CDATA[
+			select a.xqbh bm,a.xqmc mc from SordineBuilding a,house_dw b,Assignment c
+			where a.lybh=b.lybh and b.h049=c.bm
+		]]>
+		<if test="yhbh != null and '' != yhbh">
+		<![CDATA[and bankid =#{yhbh}]]>	
+		</if>
+		group by a.xqbh,a.xqmc
+        order by a.xqbh
+	</select>
+</mapper>

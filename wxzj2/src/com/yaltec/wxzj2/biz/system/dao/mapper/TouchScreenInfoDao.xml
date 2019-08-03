@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.TouchScreenInfoDao">
+	
+	<!-- 查询所有触摸屏信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.system.entity.TouchScreenInfo"
+			resultType="com.yaltec.wxzj2.biz.system.entity.TouchScreenInfo">
+		<![CDATA[
+			select bm,typebm,(case type when '01' then '政策新闻' when '02' then '办事指南' end) as type,convert(varchar(10),ywrq,120) ywrq,title,oldName,newName,username from cmplist
+		]]>
+		<where>
+			<if test="title != null and '' != title">
+				<![CDATA[and title like '%${title}%']]>	
+			</if>
+			<if test="type != null and '' != type">
+				<![CDATA[and type=#{type}]]>	
+			</if>
+		</where>
+		<![CDATA[ order by bm]]>
+	</select>
+	
+	<!--新增、修改触摸屏信息-->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			 {call p_ZcxxSaveBS(
+				#{bm,mode=IN,jdbcType=VARCHAR},
+				#{typebm,mode=IN,jdbcType=VARCHAR},
+				#{type,mode=IN,jdbcType=VARCHAR},
+				#{ywrq,mode=IN,jdbcType=DATE},
+				#{title,mode=IN,jdbcType=VARCHAR},
+				#{content,mode=IN,jdbcType=VARCHAR},
+				#{oldName,mode=IN,jdbcType=VARCHAR},
+				#{newName,mode=IN,jdbcType=VARCHAR},
+				#{username,mode=IN,jdbcType=VARCHAR},
+				#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+			)}
+		]]>
+	</select>
+	
+	<!-- 根据bm获取开发单位信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.TouchScreenInfo">
+		<![CDATA[select bm,typebm,type,convert(varchar(10),ywrq,120) ywrq,title,content,oldName,
+			 newName,username from cmplist where bm=#{bm}]]>
+	</select>
+	
+	<!-- 根据bm删除开发单位信息-->
+	<delete id="delete" parameterType="String">
+		<![CDATA[delete from cmplist where bm=#{bm}]]>
+	</delete>
+	
+	<!-- 根据bm批量删除开发单位信息-->
+	<delete id="batchDelete" parameterType="java.util.List">
+		<![CDATA[DELETE FROM cmplist]]>
+		<where>
+			<foreach collection="list" index="index" item="bm" open="(" separator="OR " close=")">
+				<![CDATA[bm=#{bm}]]>
+			</foreach>
+		</where>
+	</delete>
+</mapper>

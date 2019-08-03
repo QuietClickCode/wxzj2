@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.MySysCodeDao">
+	
+	<!-- 查询所有系统编码-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.MySysCode">
+	<![CDATA[select substring(a.bm,7,2) bm,b.mc as MYcode_bm,a.mc,a.ms,a.xh,a.sfqy from MYsyscode a,
+		MYcode b where a.MYcode_bm=b.bm and a.sfqy='是' order by MYcode_bm,xh
+	]]>
+	</select>
+	
+	<!-- 查询所有系统编码-->
+	<select id="findList" resultType="com.yaltec.wxzj2.biz.system.entity.CodeName">
+	<![CDATA[select bm,mc from mycode]]>
+	</select>
+	
+	<!--根据编码类型名称查询对应的编码信息-->
+	<select id="findById" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[select * from mysyscode where mycode_bm=#{mycode_bm} and mc like '%${mc}%' order by bm]]>
+	</select>
+	
+	<!--保存系统编码信息-->
+	<insert id="add" parameterType="java.util.Map">
+		<![CDATA[insert into mysyscode(bm,mycode_bm,mc,ms,xh,sfqy) values(#{bm},#{mycode_bm},#{mc},#{ms},#{xh},#{sfqy})
+		]]>
+	</insert>
+	
+	<!-- 根据bm获取系统编码信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.MySysCode">
+	<![CDATA[select bm,mc,ms,xh,sfqy from mysyscode where bm=#{bm}]]>
+	</select>
+	
+	<!-- 修改系统编码信息-->
+	<update id="update" parameterType="java.util.Map">
+	<![CDATA[update mysyscode set mc=#{mc},ms=#{ms},xh=#{xh},sfqy=#{sfqy} 
+			  where bm=#{bm}]]>
+	</update>
+	
+	<!-- 根据mycode_bm 查询数据 -->
+	<select id="findByMycodeBm" parameterType="String" resultType="String">
+		<![CDATA[select MAX(bm) from mysyscode where mycode_bm=#{mycode_bm}]]>
+	</select>
+</mapper>

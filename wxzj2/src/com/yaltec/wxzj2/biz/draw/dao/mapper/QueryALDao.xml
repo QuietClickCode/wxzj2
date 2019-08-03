@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.QueryALDao">
+
+    <!--  销户查询（模糊查询-全部显示 )-->
+    <select id="queryQueryAL1_1" resultType="com.yaltec.wxzj2.biz.draw.entity.QueryAL"
+        parameterType="java.util.Map">
+        <![CDATA[
+            select bm,nbhdname,bldgname,jbr,sqrq,slzt,pzje,username,ApplyRemark,ofilename,nfilename from SordineApplDraw 
+            where  sqrq >= #{begindate} and sqrq <= #{enddate}  and status > 9 and  status < 18
+            union all
+			select '合计' bm,'','','',max(sqrq),'',sum(pzje),'','','','' from SordineApplDraw 
+			where  sqrq >= #{begindate} and sqrq <= #{enddate}  and status > 9 and  status < 18
+        ]]>
+    </select>
+    
+    <!--  销户查询（模糊查询） -->
+    <select id="queryQueryAL1_2" resultType="com.yaltec.wxzj2.biz.draw.entity.QueryAL"
+        parameterType="java.util.Map">
+        <![CDATA[
+            select bm,nbhdname,bldgname,jbr,sqrq,slzt,pzje,username,ApplyRemark,ofilename,nfilename from SordineApplDraw 
+            where sqrq >= #{begindate} and sqrq <= #{enddate} and status = #{cxlb}
+            union all
+			select '合计' bm,'','','',max(sqrq),'',sum(pzje),'','','','' from SordineApplDraw 
+			where sqrq >= #{begindate} and sqrq <= #{enddate} and status = #{cxlb}
+        ]]>
+    </select>
+    
+    
+    <!--  打印销户查询（模糊查询） -->
+    <select id="queryQueryAL4_PrintPDF" resultType="com.yaltec.wxzj2.biz.draw.entity.QueryAL1"
+        parameterType="java.util.Map">
+        <![CDATA[
+            SELECT a.h001 AS h001,a.z012 AS z012,a.z004 AS z004,a.z005 AS z005,a.xqmc AS xqmc,
+				a.lymc AS lymc,a.username AS username,a.z011 AS z011,a.z018 AS z018,a.z007 AS z007,
+				b.h002 AS h002,b.h003 AS h003,b.h005 AS h005,b.h006 AS h006,b.h002,b.h003,b.h005,
+				b.h010,b.h039,b.h020,b.h028,b.h029,b.h030,b.h031,c.jbr,c.ApplyRemark
+				FROM Draw_history a,house b,SordineApplDraw c
+			WHERE a.h001=b.h001 AND a.z011=c.bm AND a.z010='XH' AND a.z011=#{z011} and a.h001 like '%'+#{h001}+'%'
+			UNION  
+			SELECT a.h001 AS h001,a.z012 AS z012,a.z004 AS z004,a.z005 AS z005,a.xqmc AS xqmc,
+				a.lymc AS lymc,a.username AS username,a.z011 AS z011,a.z018 AS z018,a.z007 AS z007, 
+				b.h002 AS h002,b.h003 AS h003,b.h005 AS h005,b.h006 AS h006,b.h002,b.h003,b.h005,
+				b.h010,b.h039,b.h020,b.h028,b.h029,b.h030,b.h031,c.jbr,c.ApplyRemark
+				FROM SordineDrawForRe a,house b,SordineApplDraw c 
+			WHERE a.h001=b.h001 AND a.z011=c.bm AND a.z010='XH' AND a.z011=#{z011} and a.h001 like '%'+#{h001}+'%'
+        ]]>
+    </select>
+    
+     <!-- 销户查询（明细查询）-->
+    <select id="queryQueryAL4" parameterType="java.util.Map" statementType="CALLABLE"
+        resultType="com.yaltec.wxzj2.biz.draw.entity.QueryAL1">
+        <![CDATA[    
+            {call P_SordineLogoutListQ(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{sfsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{unitcode,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{czy,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+
+</mapper>

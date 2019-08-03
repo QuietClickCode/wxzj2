@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertymanager.dao.BuildingTransferDao">
+	
+	<!-- 楼盘转移查询 -->
+	<select id="findAll" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.propertymanager.entity.BuildingTransfer" >
+		<![CDATA[
+            {call P_RealEstateShiftQ_BS(
+                #{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ifsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{bdate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{edate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{nret,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!-- 打印清册-->
+	<select id="inventory" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.propertymanager.entity.BuildingTransfer" >
+		<![CDATA[
+            {call P_RealEstateShiftQ_BS(
+                #{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ifsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{nret,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!-- 保存整栋楼的楼盘转移-->
+	<select id="save" parameterType="java.util.Map"  statementType="CALLABLE">
+		<![CDATA[
+            {call P_RealEstateShiftS_BS(
+                #{lybha,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybhb,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zyrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!-- 保存单个房屋或一些房屋的楼盘转移-->
+	<select id="saveh001" parameterType="java.util.Map"  statementType="CALLABLE">
+	<![CDATA[
+		{call P_SordineRealEstateShift_BS(
+			#{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{lybha,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{lybhb,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{ywrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+        )}
+    ]]>
+	</select>
+	
+	<!-- 判断业务是否审核 -->
+    <select id="checkPZSFSH" resultType="java.lang.String" parameterType="java.util.Map">
+	   <![CDATA[     
+		   select max(p005) p005 from SordineFVoucher where p004=#{w008} and ISNULL(p005,'')=''
+		]]>
+    </select>
+	
+	<!-- 删除楼盘转移 -->
+    <select id="delBuildingTransfer" parameterType="java.util.Map"  statementType="CALLABLE" resultType="java.lang.String">
+    <![CDATA[
+        {call P_RealEstateShiftDel_BS(
+            #{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+            #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+            #{h030,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+            #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+        )}
+    ]]>
+    </select>	
+</mapper>

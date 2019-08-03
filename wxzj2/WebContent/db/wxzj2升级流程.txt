@@ -1,0 +1,13 @@
+wxzj2升级流程：
+1、其他UPDATE_SQL语句.sql
+2、存储过程.sql
+3、createtable.sql
+4、procedure.sql
+5、initdata.sql
+6、产权接口精简表.sql
+7、产权接口精简存储过程.sql
+8、菜单修改（新版）.sql
+9、update.sql
+10、索引.sql
+11、更新程序。
+12、重设权限。

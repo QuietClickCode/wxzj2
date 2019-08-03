@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.CertificateAdjustDao">
+
+	<!-- 根据对应的月份查询凭证号调整列表-->
+	<select id="findByTime" parameterType="com.yaltec.wxzj2.biz.voucher.entity.ReviewCertificate" 
+						 resultType="com.yaltec.wxzj2.biz.voucher.entity.ReviewCertificate">
+	<![CDATA[
+	SELECT p004,p005,CONVERT(varchar(10),p006,120) p006,MAX(p007) p007,SUM(p008) p008,MAX(p011) p011 FROM SordineFVoucher
+	WHERE ISNULL(p005,'')<>'' AND CONVERT(varchar(7),p006,120)=CONVERT(varchar(7),#{p006},120) GROUP BY p004,p005,p006
+	UNION ALL
+	SELECT '' p004,'合计' p005, '' p006,'' p007,isnull(SUM(p008),0) p008,'' p011
+	FROM ( SELECT p004,p005,CONVERT(varchar(10),p006,120) p006, MAX(p007) p007,SUM(p008) p008,MAX(p011) p011 FROM SordineFVoucher
+	WHERE ISNULL(p005,'')<>'' AND CONVERT(varchar(7),p006,120)=CONVERT(varchar(7),#{p006},120) GROUP BY p004, p005,p006) a ORDER BY p005
+	]]>
+	</select>
+	
+	<!-- 凭证审核_凭证号调整-->
+	<select id="updateCertificateAdjust" parameterType="String" statementType="CALLABLE">
+	<![CDATA[
+    	{call P_certificateAdjust_BS(
+        	#{p005,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+        )}     
+    ]]>
+    </select>
+</mapper>

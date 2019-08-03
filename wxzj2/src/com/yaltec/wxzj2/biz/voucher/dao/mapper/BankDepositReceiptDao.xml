@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.BankDepositReceiptDao">
+	
+	<!-- 凭证审核-银行进账单查询 -->
+	<select id="findAll" parameterType="java.util.Map" statementType="CALLABLE" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.BankDepositReceipt">
+	    <![CDATA[    
+            {call P_queryBankDepositReceipt(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ywbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!-- 判断是否是九龙坡 -->
+    <select id="isJLP" resultType="String">
+    	<![CDATA[  
+      		if exists (select * from MYreg where r001 like '%九龙坡%')
+    	begin
+    		select '1'
+    	end
+    	else
+    	begin
+    		select '0'
+    	end
+       ]]>
+    </select>
+    
+    <!-- 凭证审核_取消对账 -->
+    <!-- 执行update sql语句 ,如果是九龙坡则执行update_sql1，否则执行update_sql2-->
+    <update id="update_sql1" parameterType="java.util.Map">
+      <![CDATA[  
+      		update webservice1_xyyh set status='0' where id = #{id};
+      		update webservice2_xyyh set status='0' where id = #{id};
+       ]]>
+    </update>
+    <update id="update_sql2" parameterType="java.util.Map">
+      <![CDATA[  
+      		update webservice1 set status='0' where id = #{id};
+      		update webservice2 set status='0' where id = #{id};
+       ]]>
+    </update>
+    
+    <!-- 凭证审核-银行进账单查询 -->
+	<select id="findBankDepositReceipt" parameterType="java.util.Map" statementType="CALLABLE" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.BankDepositReceipt">
+	    <![CDATA[    
+            {call P_queryBankDepositReceipt(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ywbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+</mapper>

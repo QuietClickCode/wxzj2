@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.file.dao.VolumeLibraryDao">
+    <!-- 查询卷库信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.file.entity.Volumelibrary"
+			resultType="com.yaltec.wxzj2.biz.file.entity.Volumelibrary">
+		<![CDATA[
+			select * from volumelibrary
+		]]>
+		<where>
+			<if test="vlid != null and '' != vlid">
+			<![CDATA[and vlid like '%${vlid}%']]>	
+			</if>
+			<if test="vlname != null and '' != vlname">
+			<![CDATA[and vlname like '%${vlname}%']]>	
+			</if>
+		</where>
+		<![CDATA[ order by id]]>
+	</select>
+	
+	<!--保存卷库信息-->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call p_saveVolumelibrary(
+			#{id,mode=INOUT,jdbcType=VARCHAR},
+			#{vlid,mode=IN,jdbcType=VARCHAR},
+			#{vlname,mode=IN,jdbcType=VARCHAR},
+			#{vldept,mode=IN,jdbcType=VARCHAR},
+			#{recorder,mode=IN,jdbcType=VARCHAR},
+			#{remarks,mode=IN,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+	
+	<!-- 根据id删除卷库信息-->
+	<delete id="delete" parameterType="String">
+		<![CDATA[delete from volumelibrary where id=#{id}]]>
+	</delete>
+	
+	<!-- 根据id批量删除卷库信息-->
+	<delete id="batchDelete" parameterType="java.util.List">
+		<![CDATA[DELETE FROM volumelibrary]]>
+		<where>
+			<foreach collection="list" index="index" item="id" open="(" separator="OR " close=")">
+				<![CDATA[id=#{id}]]>
+			</foreach>
+		</where>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryCommunityPDao">
+
+	<!--小区缴款查询返回map-->
+	<resultMap id="queryCommunityP" type="com.yaltec.wxzj2.biz.compositeQuery.entity.QueryCommunityP">
+		<result column="xqbh" 	    property="xqbh" />
+		<result column="xqmc" 	    property="xqmc" />
+		<result column="dwbm" 		property="dwbm" />
+		<result column="dwmc" 		property="dwmc" />
+		<result column="shs" 	    property="shs" />
+		<result column="sh006" 	    property="sh006" />
+		<result column="sh021" 		property="sh021" />
+		<result column="phs" 		property="phs" />
+		<result column="ph006" 	    property="ph006" />
+		<result column="ph021" 	    property="ph021" />
+		<result column="uhs" 		property="uhs" />
+		<result column="uh006" 	    property="uh006" />
+		<result column="uh021" 		property="uh021" />
+	</resultMap>
+	
+	<!--小区利息单查询-->
+	<select id="findList" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="queryCommunityP" >
+	    <![CDATA[  
+            {call P_NeighbhdPaymentQ(
+            	#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+            )}
+        ]]>
+	</select>	
+	
+</mapper>

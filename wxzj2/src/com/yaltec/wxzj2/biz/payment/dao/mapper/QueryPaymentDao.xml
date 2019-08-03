@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.payment.dao.QueryPaymentDao">
+	
+	<!--查询交款信息-->
+	<select id="findAll" parameterType="java.util.Map" statementType="CALLABLE" 
+		resultType="com.yaltec.wxzj2.biz.payment.entity.QueryPayment" >
+	<![CDATA[
+		{call p_QueryPaymentBS(
+			#{begindate, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{enddate, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{cxlb, javaType=java.lang.String, jdbcType=SMALLINT, mode=IN},
+			#{unitcode, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{sysUser, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{xqbh, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{lybh, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{h001, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{w012, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{w008, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{jw008, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{qserialno, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{jserialno, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{sfdy, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{sfrz, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{xmbh, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{result, javaType=java.lang.String, jdbcType=SMALLINT, mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!--查询交款信息(导出) -->
+	<select id="findDataToExport" parameterType="java.util.Map" statementType="CALLABLE" 
+		resultType="java.util.Map" >
+	<![CDATA[
+		{call p_QueryPaymentBS(
+			#{begindate, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{enddate, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{cxlb, javaType=java.lang.String, jdbcType=SMALLINT, mode=IN},
+			#{unitcode, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{sysUser, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{xqbh, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{lybh, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{h001, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{w012, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{w008, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{jw008, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{qserialno, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{jserialno, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{sfdy, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{sfrz, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{xmbh, javaType=java.lang.String, jdbcType=VARCHAR, mode=IN},
+			#{result, javaType=java.lang.String, jdbcType=SMALLINT, mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 查询该业务是否到账(单个打印), 返回结果<0 则是未到帐-->
+	<select id="isPayInSP" resultType="java.lang.Integer" parameterType="java.util.Map">
+	<![CDATA[
+		select count(a.id) from webservice1 a,SordinePayToStore b where (a.h001=b.h001 or 
+		a.h001=SUBSTRING(b.w008,2,5)+SUBSTRING(b.w008,8,3)) and b.w008=#{w008} and 
+		CONVERT(varchar(10),a.h020,120)=CONVERT(varchar(10),b.w014,120)
+	]]>
+	</select>
+	
+	<!-- 查询该业务是否到账(批量打印)，返回结果>=1则有未到帐的业务-->
+	<select id="isPayInBP" resultType="java.lang.Integer" parameterType="java.util.Map">
+	<![CDATA[
+		select COUNT(h001) from house_dw where status<>1 and h001 in (#{h001s})
+	]]> 
+	</select>
+	
+	<!-- 根据房屋编号获取利息-->
+	<select id="getW005" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.payment.entity.QueryPayment" >
+	<![CDATA[
+		SELECT w005, w011 from  SordinePayToStore where h001 =#{h001} and w008 =#{w008}
+	]]>
+	</select>
+    
+    <!-- 根据业务编号获取缴款银行编码 -->
+	<select id="getBankIdByW008" parameterType="String" resultType="String" >
+		<![CDATA[
+			select top 1 yhbh from SordinePayToStore where w008=#{w008}
+		]]>
+	</select>
+	
+</mapper>

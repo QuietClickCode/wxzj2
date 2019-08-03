@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.ByBuildingForC1Dao">
+
+	<!--分户台账查询返回map-->
+	<resultMap id="fhresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.ByBuildingForC1">
+		<result column="w003" 	    property="w003" />
+		<result column="w012" 		property="w012" />
+		<result column="w002" 		property="w002" />
+		<result column="w004" 		property="w004" />
+		<result column="w005" 		property="w005" />
+		<result column="z004" 		property="z004" />
+		<result column="z005" 	    property="z005" />
+		<result column="bjye" 	    property="bjye" />
+		<result column="lxye" 	    property="lxye" />
+		<result column="xj" 	    property="xj"/>
+	</resultMap>	
+	
+	<!--分户台账查询-->
+	<select id="queryByBuildingForC1" parameterType="java.util.Map"  
+		statementType="CALLABLE"
+		resultMap="fhresultMap" >
+	<![CDATA[
+		 {call P_LedgerBYHQ_BS(
+                #{h001,jdbcType=VARCHAR,mode=IN},
+                #{begindate,jdbcType=DATE,mode=IN},
+                #{enddate,jdbcType=DATE,mode=IN},
+                #{cxlb,jdbcType=SMALLINT,mode=IN},
+                #{pzsh,jdbcType=SMALLINT,mode=IN},
+                #{result,jdbcType=SMALLINT,mode=OUT,javaType=java.lang.String}                             
+            )}
+	]]>
+	</select>
+
+	<!--综合查询打印获取房屋楼宇信息getHouse_pdfBBC-->
+	<select id="findByH001" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+	<![CDATA[
+	select a.h001,b.LayerNumber as h040,a.lymc,a.h002,a.h003,a.h005,a.h006,a.h007,a.h010,a.h013,a.h019,
+        (case c.xm when  '00' then (c.xs * 100) else c.xs end) as h022,
+        (case c.xm when  '00' then '房款' else '建筑面积' end) as h023,
+        a.h033,b.fwlx as h018,b.lyjg as h045,b.fwxz as h012,c.xm as h032
+        from house a,SordineBuilding b,Deposit c 
+        where a.h001= #{bm} and a.lybh=b.lybh and a.h022=c.bm
+        ]]>
+	</select>
+	
+	<!-- 打印：物业专项维修资金交存证明 -->
+    <select id="pdfPaymentProve" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+        <![CDATA[
+    	select a.h001,lymc,h002,h003,h005,h006,h009,h010,h013,h015,h045,h019,(select xs from Deposit where bm=h022) as h022,
+		    (select (case xm when '00' then '房款' when '01' then '建筑面积' end)+'*'+convert(varchar(20),xs) from Deposit where bm=a.h022 ) h023,
+		    h017,(lymc+' '+h002+'-'+h003+'-'+h005) address,w014 h020,w006 h039,
+			(select h047 from house_dw where h001=a.h001) as h047
+		from house a,(
+			select top 1  convert(varchar(10),w014,120) w014,w006,h001 from (
+				select w014,w006,h001 from SordinePayToStore where w008<>'1111111111' and w010<>'jx' and h001=#{bm}
+				union
+				select w014,w006,h001 from Payment_history where w008<>'1111111111' and w010<>'jx' and h001=#{bm}
+			) c order by w014
+		) b where a.h001=#{bm} and a.h001=b.h001
+        ]]>
+    </select>
+    
+</mapper>

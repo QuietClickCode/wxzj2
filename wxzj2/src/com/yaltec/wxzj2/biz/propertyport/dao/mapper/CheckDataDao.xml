@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertyport.dao.CheckDataDao">
+    <!-- 房屋信息查询 -->
+    <select id="query" parameterType="java.util.Map" resultType="java.util.Map">
+    	<![CDATA[
+			select a.lymc,a.h002,a.h003,a.h005,a.h006,a.h013,a.h050,a.h023,
+			a.h012,a.h018,a.h045,a.h051 from house_temp a,SordineBuilding b where 
+	    	a.lybh=b.lybh 
+        ]]>
+        <if test="xqbh != null and '' != xqbh">
+			<![CDATA[
+				and b.xqbh=#{xqbh} 
+			]]>	
+		</if>
+        <if test="lybh != null and '' != lybh">
+			<![CDATA[
+		    	and b.lybh=#{lybh}
+			]]>	
+		</if>
+        <if test="h013 != null and '' != h013">
+			<![CDATA[
+				AND ISNULL(a.h013,'') like '%'+#{h013}+'%' 
+			]]>	
+		</if>
+    </select>
+    
+    <select id="exec" resultType="java.lang.Integer" parameterType="java.util.Map">
+        <![CDATA[
+            ${sqlstr}
+        ]]>
+    </select>
+    
+    <!-- 产权接口审核新建房屋   -->
+	<select id="checkFW" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_PPort_CheckFW(
+				#{sfxh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{nret,javaType=java.lang.Integer,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+    
+    <!-- 产权接口退回新建房屋到房屋同步中   -->
+	<select id="returnFW" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_PPort_ReturnFW(
+				#{sfxh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{nret,javaType=java.lang.Integer,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+</mapper>

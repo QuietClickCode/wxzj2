@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.DepositDao">
+	
+	<!-- 查询所有交存标准设置信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.system.entity.Deposit"
+		resultType="com.yaltec.wxzj2.biz.system.entity.Deposit">
+		<![CDATA[
+			select bm,mc,(case xm when '00' then '房款' when '01' then '建筑面积' end) as xm,xs from Deposit
+		]]>
+			<where>
+				<if test="bm != null and '' != bm">
+				<![CDATA[and bm like '%${bm}%']]>	
+				</if>
+				<if test="mc != null and '' != mc">
+				<![CDATA[and mc like '%${mc}%']]>	
+				</if>
+				<if test="xm != null and '' != xm">
+				<![CDATA[and xm=#{xm}]]>	
+				</if>
+			</where>
+		<![CDATA[ order by bm]]>
+	</select>
+	
+	<!--保存交存标准设置信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.system.entity.Deposit">
+		<![CDATA[insert into Deposit(bm,mc,xm,xs) values(#{bm},#{mc},#{xm},#{xs})
+	]]>
+	</insert>
+	
+	<!-- 根据bm获取交存标准设置信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Deposit">
+		<![CDATA[select bm,mc,xm,xs from Deposit where bm=#{bm}]]>
+	</select>
+	
+	<!-- 修改交存标准设置信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.system.entity.Deposit">
+		<![CDATA[update Deposit set mc=#{mc},xm=#{xm},xs=#{xs} where bm=#{bm}]]>
+	</update>
+</mapper>

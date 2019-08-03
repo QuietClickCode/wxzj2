@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.FinanceDao">
+	
+	<!-- 财务对账-单位日记账/银行对账单-核对账单查询
+		<select id="queryFinanceR" parameterClass="string" resultClass="com.yaltec.wxzj.dto.FinanceR">
+			$data$
+		</select>
+		 -->
+     
+	<!-- 财务对账-更新基本信息：更新尾巴“|”，更新10位为9位“|” -->
+	<update id="updateTail">
+	<![CDATA[
+		update webservice2 set status = '0' where status='0|'
+		update webservice3 set status = '0' where status='0|'
+		update webservice3 set sjh = left(sjh,9) where len(sjh)=10
+	]]>
+	</update>
+    
+	<!-- 财务对账-更新基本信息：更新状态 -->
+	<update id="updateStatus" parameterType="java.util.Map">
+	<![CDATA[
+		update webservice1 set status=1 from webservice1 a,webservice2 b where a.wybh=b.wybh 
+		and convert(varchar(10),a.h020,120)=convert(varchar(10),b.h020,120) and a.h030=b.h030 
+		and  a.source=#{bankid} and a.status=0 and convert(varchar(10),a.h020,120)>=convert(varchar(10),#{begindate},120) 
+		and convert(varchar(10),a.h020,120)<=convert(varchar(10),#{enddate},120) 
+
+		update webservice2 set status=1 from webservice1 a,webservice2 b where a.wybh=b.wybh 
+		and convert(varchar(10),a.h020,120)=convert(varchar(10),b.h020,120) and a.h030=b.h030 
+		and  b.source=#{bankid}  and b.status=0 and convert(varchar(10),b.h020,120)>=convert(varchar(10),#{begindate},120) 
+		and convert(varchar(10),b.h020,120)<=convert(varchar(10),#{enddate},120)
+	]]>
+	</update>
+    
+	<!-- 财务对账-更新基本信息(九龙坡)：更新状态 -->
+	<update id="updateStatusJLP" parameterType="java.util.Map">
+	<![CDATA[
+		update webservice1_xyyh set status=1 from webservice1_xyyh a,webservice2_xyyh b where a.h001=b.h001 and 
+		convert(varchar(10),a.h020,120)=convert(varchar(10),b.h020,120) and a.h030=b.h030 and  a.source=#{bankid} 
+		and a.status=0 and convert(varchar(10),a.h020,120)>=convert(varchar(10),#{begindate},120) and 
+		convert(varchar(10),a.h020,120)<=convert(varchar(10),#{enddate},120) 
+
+		update webservice2_xyyh set status=1 from webservice1_xyyh a,webservice2_xyyh b where a.h001=b.h001 and 
+		convert(varchar(10),a.h020,120)=convert(varchar(10),b.h020,120) and a.h030=b.h030 and  b.source=#{bankid} 
+		and b.status=0 and convert(varchar(10),b.h020,120)>=convert(varchar(10),#{begindate},120) and 
+		convert(varchar(10),b.h020,120)<=convert(varchar(10),#{enddate},120)
+	]]>
+	</update>
+
+	<!--财务对账-单位日记账/银行对账单-核对账单查询 -->
+	<select id="findFinance" resultType="com.yaltec.wxzj2.biz.voucher.entity.FinanceR" parameterType="java.util.Map">
+	<![CDATA[
+		${sqlstr}
+	]]>
+	</select>
+
+	<!-- 财务对账-保存功能 更新状态1 -->
+	<update id="saveFinanceRUpdateWeb1" parameterType="java.util.Map">
+	<![CDATA[
+		update webservice1  set status=1 where id=#{id_dw}
+	]]>
+	</update>
+    
+	<!-- 财务对账-保存功能 更新状态2 -->
+	<update id="saveFinanceRUpdateWeb2" parameterType="java.util.Map">
+	<![CDATA[
+		update webservice2  set status=1 where id=#{id_ys}
+	]]>
+	</update>
+    
+	<!-- 财务对账-保存功能-查询交款记录1 -->
+	<select id="queryPayToStoreForSaveFinanceR1"  parameterType="java.util.Map" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.PaymentRecord">
+	<![CDATA[
+		select distinct a.w008,convert(varchar(10),b.h020,120) h020 from SordinePayToStore a, webservice2 b where isnull(a.w007,'')='' 
+		and b.h001=a.h001 and a.w010 in('GR','DR') and b.status=1 and b.source=#{yhbh} and 
+		convert(varchar(10),b.h020,120)>=#{begindate} and convert(varchar(10),b.h020,120)<=#{enddate}
+	]]>
+	</select>
+    
+	<!-- 财务对账-保存功能-查询交款记录2 -->
+	<select id="queryPayToStoreForSaveFinanceR2"  parameterType="java.util.Map" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.PaymentRecord">
+	<![CDATA[
+		select distinct a.w008,convert(varchar(10),b.h020,120) h020 from SordinePayToStore a,webservice2 b where isnull(a.w007,'')='' 
+		and (a.w008=b.h001 or (b.h001=substring(a.w008,2,5)+substring(a.w008,8,3))) and b.status=1 and  b.source=#{yhbh} and 
+		convert(varchar(10),b.h020,120)>=#{begindate} and convert(varchar(10),b.h020,120)<=#{enddate} 
+	]]>
+	</select>
+    
+	<!-- 获取审核日期（审核日期） -->
+	<select id="getReviewDate" resultType="java.lang.String">
+	<![CDATA[
+		select top 1 convert(varchar(10), zwdate, 120) zwdate from SordineAnnual
+	]]>
+	</select>
+    
+	<!-- 财务对账-保存功能-自动审核凭证 -->
+	<select id="saveFinanceR" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_VoucherAudBS(
+			#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{AudDate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{InterestDate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+    
+	<!-- 自动补全银行接口数据 补全归集中心不走银行接口所缺失的数据 -->
+	<select id="autoAddBIData" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_AutoAddBIData(
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+    
+</mapper>

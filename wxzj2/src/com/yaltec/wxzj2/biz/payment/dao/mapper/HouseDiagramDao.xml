@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.payment.dao.HouseDiagramDao">
+	<!--保存交款-->
+	<select id="savePaymentByJK" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_OwnerPayment2(
+				#{h001s,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{w013,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{w010,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},
+				#{unitcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{serialno,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!--保存补交-->
+	<select id="savePaymentByBJ" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_OwnerPayment3(
+				#{h001s,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},               
+				#{h017,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h018,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h022,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h023,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h049,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h050,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},                
+				#{w013,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{w010,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},                
+				#{serialno,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+</mapper>

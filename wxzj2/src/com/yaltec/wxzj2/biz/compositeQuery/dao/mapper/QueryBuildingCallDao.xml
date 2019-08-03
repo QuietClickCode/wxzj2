@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryBuildingCallDao">
+
+	<!--楼宇催交查询返回map-->
+	<resultMap id="lyresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.BuildingCall">
+		<result column="xqbh" 	    property="xqbh" />
+		<result column="xqmc" 		property="xqmc" />
+		<result column="lybh" 		property="lybh" />
+		<result column="lymc" 		property="lymc" />
+		<result column="yjje" 		property="yjje" />
+		<result column="sjje" 		property="sjje" />
+		<result column="zqje" 		property="zqje" />
+		<result column="kyje" 	    property="kyje" />
+		<result column="zjje" 		property="zjje" />
+		<result column="mdate" 	    property="mdate" />
+	</resultMap>
+	
+	<!--楼宇催交查询-->
+	<select id="queryBuildingCall" parameterType="java.util.Map"  
+		statementType="CALLABLE"
+		resultMap="lyresultMap" >
+	    <![CDATA[    
+            {call P_queryBuildingCall_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sfsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+	<!--楼宇催交查询-->
+	<select id="findBuildingCall" parameterType="java.util.Map"  
+		statementType="CALLABLE"
+		resultMap="lyresultMap" >
+	    <![CDATA[    
+            {call P_queryBuildingCall_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sfsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+            )}
+        ]]>
+	</select>
+
+</mapper>

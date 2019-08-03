@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryDunningDao">
+	
+	<!--续筹催交查询返回map-->
+	<resultMap id="xcresultMap" type="com.yaltec.wxzj2.biz.property.entity.House">
+		<result column="h001" 	    property="h001" />
+		<result column="lymc" 	    property="lymc" />
+		<result column="h002" 		property="h002" />
+		<result column="h003" 		property="h003" />
+		<result column="h005" 		property="h005" />
+		<result column="h013" 		property="h013" />
+		<result column="h006" 		property="h006" />
+		<result column="h010" 		property="h010" />
+		<result column="h022" 	    property="h022" />
+		<result column="h023"       property="h023" />
+		<result column="h021"       property="h021" />
+		<result column="h030"       property="h030" />
+		<result column="sjje"       property="sjje" />
+		<result column="qjje"       property="qjje" />
+		<result column="address"    property="address" />
+		<result column="h011"       property="h011" />
+		<result column="h015"       property="h015" />
+		<result column="h017"       property="h017" />
+		<result column="h019"       property="h019" />
+		<result column="h044"       property="h044" />
+	</resultMap>
+	
+	<!--续筹催交查询-->
+	<select id="queryQueryDunning" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xcresultMap" >
+	    <![CDATA[  
+            {call P_DunningQry_BS(
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{StandardType,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{ShowType,jdbcType=SMALLINT,mode=IN},
+                #{Item,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{Coefficient,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN}
+            )}
+        ]]>
+	</select>	
+	
+		<!--续筹催交查询-->
+	<select id="findQueryDunning" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xcresultMap" >
+	    <![CDATA[  
+            {call P_DunningQry_BS(
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{StandardType,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{ShowType,jdbcType=SMALLINT,mode=IN},
+                #{Item,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{Coefficient,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+</mapper>
+

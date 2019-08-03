@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.ExportFSBillDao">
+	
+	<!-- 查询票据信息 -->
+	<select id="findBill" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoM" parameterType="java.util.Map">
+	<![CDATA[ select * from ReceiptInfoM where (sfuse = 1 or sfzf = 1) ]]>
+		<if test="type == 0">
+		<![CDATA[ and w013 >= #{beginDate} and w013 <= #{endDate} ]]>
+		</if>
+		<if test="type == 1">
+		<![CDATA[ and pjh >= #{billNoS} and pjh <= #{billNoE} ]]>
+		</if>
+		<if test="regNo != null and regNo != '' ">
+		<![CDATA[ and regNo = #{regNo} ]]>
+		</if>
+		<if test="noExport == 1 ">
+		<![CDATA[ and isnull(batchNo,'') = '' ]]>
+		</if>
+	<![CDATA[ order by batchNo desc,pjh]]>
+	</select>
+	
+	<!-- 票据导出之前的数据验证 -->
+	<select id="exportDataVerify" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoM" parameterType="java.util.Map">
+	<![CDATA[ select * from ReceiptInfoM where isnull(batchNo,'') <> '' and (sfuse = 1 or sfzf = 1) ]]>
+		<if test="type == 0">
+		<![CDATA[ and w013 >= #{beginDate} and w013 <= #{endDate} ]]>
+		</if>
+		<if test="type == 1">
+		<![CDATA[ and pjh >= #{billNoS} and pjh <= #{billNoE} ]]>
+		</if>
+		<if test="regNo != null and regNo != '' ">
+		<![CDATA[ and regNo = #{regNo} ]]>
+		</if>
+	<![CDATA[  ]]>
+	<![CDATA[ order by batchNo desc,pjh]]>
+	</select>
+    
+	<!-- 查询需要导出的票据信息（非税版）a.pjh=b.w011  去掉票据号查询条件，作废的票据也需要查询交款人、交款金额-->
+	<select id="findBillFS" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoMFS" parameterType="java.util.Map">
+	<![CDATA[ select a.*,b.w006,b.w012 from ReceiptInfoM a left join SordinePayToStore b on 
+		 a.h013=b.h001 and a.regNo=b.regNo and a.pjh=b.w011 where (sfuse = 1 or sfzf = 1) and isnull(a.batchNo,'') = ''
+	]]>
+		<if test="type == 0">
+		<![CDATA[ and a.w013 >= #{beginDate} and a.w013 <= #{endDate} ]]>
+		</if>
+		<if test="type == 1">
+		<![CDATA[ and a.pjh >= #{billNoS} and a.pjh <= #{billNoE} ]]>
+		</if>
+		<if test="regNo != null and regNo != '' ">
+		<![CDATA[ and a.regNo = #{regNo} ]]>
+		</if>
+	<![CDATA[ order by pjh]]>
+	</select>
+	
+	<!-- 查询需要导出的票据信息（非税版） a.pjh=b.w011  去掉票据号查询条件，作废的票据也需要查询交款人、交款金额-->
+	<select id="findBillFSByBatchNo" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoMFS" 
+		parameterType="java.lang.String">
+	<![CDATA[ 
+		select a.*,b.w006,b.w012 from ReceiptInfoM a left join SordinePayToStore b on
+		a.h013=b.h001 and a.regNo=b.regNo and a.pjh=b.w011 where (sfuse = 1 or sfzf = 1) and a.batchNo=#{batchNo} 
+		order by a.pjh
+	]]>
+	</select>
+	
+	<!-- 把非税的批次号更新到导出编号中，导出状态为0：失败 -->
+	<update id="updateBatchNo" parameterType="java.util.Map">
+	<![CDATA[ update ReceiptInfoM set batchNo = #{batchNo}, status= 0 where  (sfuse = 1 or sfzf = 1) and isnull(batchNo,'') = '' ]]>
+		<if test="type == 0">
+		<![CDATA[ and w013 >= #{beginDate} and w013 <= #{endDate} ]]>
+		</if>
+		<if test="type == 1">
+		<![CDATA[ and pjh >= #{billNoS} and pjh <= #{billNoE} ]]>
+		</if>
+		<if test="regNo != null and regNo != '' ">
+		<![CDATA[ and regNo = #{regNo} ]]>
+		</if>
+	</update>
+	
+	<!-- 根据导出批次号更新导出状态，1：成功，如果上报失败则不用更新 -->
+	<update id="updateReportStatus" parameterType="java.lang.String">
+	<![CDATA[ update ReceiptInfoM set status = 1 where batchNo = #{batchNo} ]]>
+	</update>
+	
+	<!-- 清空票据上的导出信息(导出批次号、导出状态) -->
+	<update id="clearReportInfo" parameterType="java.lang.String">
+	<![CDATA[ update ReceiptInfoM set status = '',batchNo = ''  where batchNo = #{batchNo} ]]>
+	</update>
+	
+	<!-- 保存非税票据导出结果 -->
+	<insert id="saveBatchInvStatus" parameterType="com.yaltec.wxzj2.biz.bill.entity.BatchInvStatus">
+	<![CDATA[
+		insert into BatchInvStatus(batchno,content,status,error,lstmoddt,total) 
+		values(#{batchno},#{content},#{status},#{error},#{lstmoddt},#{total})
+	]]>
+	</insert>
+	
+	<!-- 查询非税上报结果列表  -->
+	<select id="findBatchInvStatus" resultType="com.yaltec.wxzj2.biz.bill.entity.BatchInvStatus" parameterType="java.util.Map">
+	<![CDATA[ select * from BatchInvStatus where lstmoddt >= #{beginDate} and convert(varchar(10),lstmoddt,120) <= #{endDate} ]]>
+		<if test="status != null and status != '' ">
+		<![CDATA[ and status = #{status} ]]>
+		</if>
+		<if test="batchNo != null and batchNo != '' ">
+		<![CDATA[ and batchNo like '%${batchNo}%' ]]>
+		</if>
+	<![CDATA[ order by lstmoddt desc]]>
+	</select>
+	
+	<!-- 保存非税票据导出结果 -->
+	<update id="updateBatchInvStatus" parameterType="com.yaltec.wxzj2.biz.bill.entity.BatchInvStatus">
+	<![CDATA[
+		update BatchInvStatus set status=#{status},error=#{error} where batchno=#{batchno}
+	]]>
+	</update>
+	
+	<!-- 查询没有上报的非税票据批次号-->
+	<select id="findRegNo" resultType="java.lang.String">
+	<![CDATA[ 
+		select distinct regNo from ReceiptInfoM where regNo>=2015 and ISNULL(batchNo,'')='' and (sfuse = 1 or sfzf = 1) 
+		and ISNULL(w013,'') <= convert(varchar(10),DATEADD(DD,-14,GETDATE()),120) order by regNo
+	]]>
+	</select>
+	
+</mapper>

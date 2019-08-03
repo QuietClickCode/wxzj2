@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.ShareADDao">
+	
+    <!-- 点击树状结构中的添加方法获取房屋信息（根据楼宇编号、单元、层） -->
+    <select id="getApplyDrawForShareAD1" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+       <![CDATA[  select a.h001,a.lymc,a.h002,a.h003,a.h005,a.h013,convert(decimal(15,2),a.h006) h006,a.h015,a.h016,a.h020,a.h010,
+        h030=(case when convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100)))<=0 then 0 else convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100))) end),
+        convert(decimal(15,2),a.h031) h031,a.h030 bjye,a.h031 lxye, 0 as ftje,0 as zqbj,0 as zqlx,0 as zcje,
+        a.h021,h023= (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(char(8),xs) from house a,Deposit b 
+        where a.h022= b.bm and a.lybh=#{lybh} and a.h035='正常' and a.h002 like '%${h002}%' and a.h003 like '%${h003}%'
+        order by a.h001,a.h002,a.h003,a.h005
+         ]]>
+    </select>
+    
+    <!-- 点击树状结构中的添加方法获取房屋信息（根据项目编号） len(#xmbm#)=12 时，传入值为申请编号 -->
+    <select id="getApplyDrawForShareADBYXM" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+        	if len(#{xmbm})=12 
+        	begin
+        		select distinct a.h001,a.lymc,a.h002,a.h003,a.h005,a.h013,convert(decimal(15,2),a.h006) h006,a.h015,a.h016,a.h010,a.h020,a.h021,
+	            h030=(case when convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100)))<0 then 0 else convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100))) end),
+	            convert(decimal(15,2),a.h031) h031,a.h030 bjye,a.h031 lxye,(z004+z005) as ftje, z004 as zqbj, z005 as zqlx,isnull(c.z023,0) as zcje,
+	            h023= (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(char(8),xs) from house a,Deposit b,SordineDrawForRe c 
+	            where a.h022= b.bm and a.h001=c.h001 and  c.z011=#{xmbm} and ISNULL(c.z007,'')='' and ISNULL(c.h001,'')<>'' and a.h035='正常'  
+	            order by a.h001,a.h002,a.h003,a.h005
+        	end
+        	else
+        	begin	
+	            select distinct a.h001,a.lymc,a.h002,a.h003,a.h005,a.h013,convert(decimal(15,2),a.h006) h006,a.h015,a.h016,a.h010,a.h020,a.h021,
+	            h030=(case when convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100)))<0 then 0 else convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100))) end),
+	            convert(decimal(15,2),a.h031) h031,a.h030 bjye,a.h031 lxye, 0 as ftje, 0 as zqbj, 0 as zqlx,0 as zcje,
+	            h023= (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(char(8),xs) from house a,Deposit b 
+	            where a.h022= b.bm and a.lybh in (select lybh from SordineBuilding where xqbh in (select ISNULL(bm,'') from NeighBourHood where xmbm = #{xmbm} )) and a.h035='正常'  
+	            order by a.h001,a.h002,a.h003,a.h005
+            end
+        ]]>
+    </select>
+    
+    <!-- 点击树状结构中的添加方法获取房屋信息（根据小区、楼宇编号） -->
+    <select id="getApplyDrawForShareAD" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+            select distinct a.h001,a.lymc,a.h002,a.h003,a.h005,a.h013,convert(decimal(15,2),a.h006) h006,a.h015,a.h016,a.h010,a.h020,isnull(a.h021,0),
+            h030=(case when convert(decimal(15,2),(a.h030-(isnull(a.h021,0)*(#{bl})/100)))<0 then 0 else convert(decimal(15,2),(a.h030-(isnull(a.h021,0)*(#{bl})/100))) end),
+            convert(decimal(15,2),a.h031) h031,a.h030 bjye,a.h031 lxye, 0 as ftje, 0 as zqbj, 0 as zqlx,0 as zcje,
+            h023= (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(char(8),xs) from house a,Deposit b 
+            where a.h022= b.bm and a.lybh in (select lybh from SordineBuilding where lybh like '%${lybh}%' and xqbh = #{xqbh}) and a.h035='正常'  
+            order by a.h001,a.h002,a.h003,a.h005
+        ]]>
+    </select>
+    
+       <!-- 点击树状结构中的添加方法获取房屋信息（根据房屋编号） -->
+    <select id="getApplyDrawForShareAD2" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+            select a.h001,a.lymc,a.h002,a.h003,a.h005,a.h013,convert(decimal(15,2),a.h006) h006,a.h015,a.h016,a.h010,a.h020,a.h021, 
+            h030=(case when convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100)))<0 then 0 else convert(decimal(15,2),(a.h030-(a.h021*(#{bl})/100))) end),
+            convert(decimal(15,2),a.h031) h031,a.h030 bjye,a.h031 lxye, 0 as ftje, 0 as zqbj,0 as zqlx,0 as zcje, 
+            h023= (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(char(8),xs) from house a, 
+            Deposit b where a.h022= b.bm and  a.h001 like #{bm} and a.h035='正常'
+        ]]>
+    </select>
+    
+     <!-- 删除分摊金额的房屋信息（批量全删） -->
+     <delete id="delShareADTotal" parameterType="java.util.Map">
+      <![CDATA[ delete from system_DrawBS where userid = #{userid} and bm = #{bm}
+      ]]>
+		</delete>
+     <!-- 删除分摊金额的房屋信息（一次删除多条） -->
+      <delete id="delShareAD" parameterType="java.util.Map">
+     <![CDATA[delete from system_DrawBS where userid = #{userid} and bm = #{bm} and h001 in (#{h001s}) ]]>
+	</delete>			
+    <!-- 修改已分摊的房屋信息的支取分摊金额 -->
+    <update id="updateShareAD" parameterType="java.util.Map">
+        <![CDATA[
+            update system_DrawBS set z006 = #{ftje}, z004 = #{zqbj}, z005 = #{zqlx},z023=#{zcje} where userid = #{userid} and h001 = #{h001}
+        ]]>
+    </update>
+    
+    <!-- 点击树状结构中的添加方法获取房屋信息（根据房屋编号） 第一步 
+          清空该操作员的数据并插入新的房屋信息数据-->
+    <insert id="shareAD1" parameterType="java.util.Map">
+    <![CDATA[ 
+    	delete from system_DrawBS where userid = #{userid} and bm = #{bm};
+		insert into system_DrawBS(bm,h001,lymc,lybh,h002,h003,h005,h013,h006,h015,z006,z004,z005,z023,h030,h031,bjye,lxye,pzje,bcpzje,isred,userid,username,z001,z002,z003)
+		select #{bm},h001,lymc,lybh,h002,h003,h005,h013,convert(decimal(15,2),h006) h006,h015,0,0,0,0,h030= (case when convert(decimal(18,2),
+		(h030-(isnull(h021,0)*(#{bl}))/100))<0 then 0 else convert(decimal(18,2),(h030-(isnull(h021,0)*(#{bl}))/100)) end),convert(decimal(15,2),h031) h031,
+		h030,h031,#{pzje},#{bcpzje},0,#{userid},#{username},'01','维修',#{ftsj} from house where h001 in (${h001s}) and h035='正常';
+        ]]>
+    </insert>
+    
+    <!-- 检查分摊的房屋中是否有交款日期大于分摊日期的情况 -->
+    <select id="checkPaymentDate" resultType="com.yaltec.wxzj2.biz.property.entity.House" parameterType="java.util.Map">
+		<![CDATA[select h001,h013,h020 from house where h001 in (
+			select h001 from system_DrawBS where userid=#{userid} and bm=#{bm}
+		) and convert(varchar(10),h020,120)>#{ftsj}
+		]]>
+    </select>
+    
+    <!-- 点击支取分摊树状结构中的添加方法获取房屋信息（根据房屋编号）第二步  
+		  处理分摊金额，合计，并把数据查询出来-->
+    <select id="shareAD2" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD"
+        parameterType="java.util.Map">
+        <![CDATA[
+            {call n_ShareAD_BS(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001a,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ftfs,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bcpzje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{pczc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+    
+    <select id="execSqlReturnInteger" resultType="java.lang.Integer" parameterType="java.util.Map">
+        <![CDATA[
+            ${sqlstr}
+        ]]>
+    </select>
+    
+    <!-- 支取分摊明细导出查询 By 申请编号   -->
+    <select id="export" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+        	if #{lb}='1'
+        	begin
+	       		select bm,lymc,h001,h002,h003,h005,h006,h013,h015,h030,h031,bjye,lxye,pzje,bcpzje,isred,z001,z002,
+					z003,userid,z006 ftje,z004 zqbj,z005 zqlx,z023 zcje,h021,h023 from system_DrawBS where userid=#{userid} and bm=#{bm} ORDER BY h001,h002,h003,h005
+        	end
+        	else
+        	begin
+        		select bm,pici,case h001 when '合计' then '小计' else lymc end lymc,case h001 when '合计' then '小计' else h001 end h001,h002,h003,h005,h006,h013,h015,h030,h031,bjye,lxye,pzje,bcpzje,isred,z001,z002,
+					z003,userid,z006 ftje,z004 zqbj,z005 zqlx,z023 zcje from system_DrawBS2 where userid=#{userid} and bm=#{bm}
+				union all 
+				select '' bm,'999' pici,'合计' lymc,'合计' h001,'' h002,'' h003,'' h005,sum(h006),'' h013,'' h015,sum(h030),sum(h031),sum(bjye),sum(lxye),
+					max(pzje),max(bcpzje),'' isred,'' z001,'' z002,
+					max(z003),max(userid),sum(z006) ftje,sum(z004) zqbj,sum(z005) zqlx,sum(z023) zcje from system_DrawBS2 
+				where userid=#{userid} and bm=#{bm} and h001<>'合计' order by pici,h001,h002,h003,h005
+        	end
+        ]]>
+    </select>
+    
+    <!-- 将导入的支取分摊明细数据插入临时表中 -->
+	<insert id="insertImportShareAD" parameterType="com.yaltec.wxzj2.biz.draw.entity.ShareADImport" >
+	<![CDATA[
+		insert into system_DrawBS(bm,h001,lymc,lybh,h002,h003,h005,h013,h006,h015,z006,z004,z005,z023,h030,h031,bjye,lxye,pzje,bcpzje,isred,userid,username,z001,z002,z003)
+		values(#{bm},#{h001},#{lymc},'',#{h002},#{h003},#{h005},#{h013},convert(decimal(15,2),#{h006}),#{h015},#{ftje},#{zqbj},#{zqlx},#{zcje},
+		convert(decimal(15,2),#{h030}),convert(decimal(15,2),#{h031}),#{bjye},#{lxye},#{pzje},#{bcpzje},0,#{userid},#{username},'01','维修',#{ftsj})
+	]]>
+	</insert>
+    
+    <!-- 检查处理导入的支取分摊明细数据，确认无误后查询，并将结果返回到界面   -->
+    <select id="handleImportShareAD" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD"
+        parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_ImportShareAD_BS(
+				#{bl,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001a,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 获取支取分摊的清册打印数据   -->
+    <select id="pdfShareAD" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+			select lymc,h001,h002,h003,h005,h013,h006,z006 as ftje,z004 as zqbj,z023 zcje,h030,z003
+			from system_DrawBS where userid = #{userid} and bm=#{bm} order by h001,h002,h003,h005
+		]]>
+    </select>
+    
+    <!-- 获取支取分摊的征缴打印数据   -->
+    <select id="pdfShareADCollectsPay" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+			select a.lymc+'    '+a.h002+'单元'+a.h003+'层'+a.h005+'号' lymc,a.h001,a.h013,z006 ftje,a.h030+a.h031 h030,
+			convert(varchar(10),z003,120) z003,z023 zcje,c.wxxm z002
+			from house a,system_DrawBS b,SordineApplDraw c where b.bm=#{bm} and b.userid=#{userid}
+			and a.h001=b.h001 and b.bm=c.bm and isnull(z023,0)<>0 order by a.h001,a.h002,a.h003,a.h005
+		]]>
+    </select>
+    
+    
+    <!-- 保存支取分摊走流程  -->
+    <insert id="saveShareAD" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+        {call n_ApplyDraw_BS(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqmc,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </insert>
+    
+    <!-- 保存支取分摊走流程  -->
+    <insert id="saveShareAD2" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+        {call n_ApplyDraw2_BS(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhmc,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </insert>
+    
+    <!-- 支取分摊导出数据   -->
+    <select id="exportShareADExcel" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+			select a.h001,a.z012 as h013,a.z006 as ftje,a.z018 as z003,b.lybh,b.lymc,b.h002,b.h003,b.h005,
+			(select wxxm from SordineApplDraw where  bm=#{bm}) wxxm
+			from SordineDrawForRe a, house_dw b where z011=#{bm}
+			and a.h001=b.h001
+		]]>
+    </select>
+    
+    <!-- 判断是否是光大银行房屋   -->
+    <select id="isGDYHHouse" parameterType="java.util.Map" resultType="java.lang.Integer">
+        <![CDATA[
+			select COUNT(*) from SordineDrawForRe a,house_dw b where a.z011=#{bm} and 
+			a.h001=b.h001 and b.h050 like '%光大银行%'
+		]]>
+    </select>
+
+</mapper>

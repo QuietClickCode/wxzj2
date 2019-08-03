@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.file.dao.ArchivesDao">
+    <!-- 查询案卷信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.file.entity.Archives"
+			resultType="com.yaltec.wxzj2.biz.file.entity.Archives">
+		<![CDATA[
+			select a.*,b.vlname from archives a,volumelibrary b 
+		]]>
+		<where>
+			<![CDATA[ a.vlid=b.id  ]]>
+			<if test="archiveid != null and '' != archiveid">
+			<![CDATA[ and a.archiveid like '%${archiveid}%']]>	
+			</if>
+			<if test="name != null and '' != name">
+			<![CDATA[ and  a.name like '%${name}%']]>	
+			</if>
+			<if test="vlid != null and '' != vlid">
+			<![CDATA[ and  a.vlid like '%${vlid}%']]>	
+			</if>
+		</where>
+		<![CDATA[ order by a.id]]>
+	</select>
+	
+	<!--保存案卷信息-->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call p_saveArchives(
+			#{id,mode=INOUT,jdbcType=VARCHAR},
+			#{archiveid,mode=IN,jdbcType=VARCHAR},
+			#{name,mode=IN,jdbcType=VARCHAR},
+			#{vlid,mode=IN,jdbcType=VARCHAR},
+			#{startdate,mode=IN,jdbcType=VARCHAR},
+			#{enddate,mode=IN,jdbcType=VARCHAR},
+			#{dept,mode=IN,jdbcType=VARCHAR},
+			#{dateType,mode=IN,jdbcType=VARCHAR},
+			#{organization,mode=IN,jdbcType=VARCHAR},
+			#{grade,mode=IN,jdbcType=VARCHAR},
+			#{rgn,mode=IN,jdbcType=VARCHAR},
+			#{cn,mode=IN,jdbcType=VARCHAR},
+			#{aid,mode=IN,jdbcType=VARCHAR},
+			#{safeid,mode=IN,jdbcType=VARCHAR},
+			#{microid,mode=IN,jdbcType=VARCHAR},
+			#{vouchtype,mode=IN,jdbcType=VARCHAR},
+			#{vouchstartid,mode=IN,jdbcType=VARCHAR},
+			#{vouchendid,mode=IN,jdbcType=VARCHAR},
+			#{page,mode=IN,jdbcType=VARCHAR},
+			#{recorder,mode=IN,jdbcType=VARCHAR},
+			#{arc_date,mode=IN,jdbcType=DATE},
+			#{remarks,mode=IN,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+	
+	 <!-- 根据编号获取案卷信息-->
+	<select id="findById" parameterType="String" resultType="com.yaltec.wxzj2.biz.file.entity.Archives">
+		<![CDATA[
+			select * from Archives where id=#{id}
+		]]>
+	</select>
+	
+	<!-- 根据id删除案卷信息-->
+	<delete id="delete" parameterType="String">
+		<![CDATA[delete from Archives where id=#{id}]]>
+	</delete>
+	
+	<!-- 根据id批量删除案卷信息-->
+	<delete id="batchDelete" parameterType="java.util.List">
+		<![CDATA[DELETE FROM Archives]]>
+		<where>
+			<foreach collection="list" index="index" item="id" open="(" separator="OR " close=")">
+				<![CDATA[id=#{id}]]>
+			</foreach>
+		</where>
+	</delete>
+	
+</mapper>

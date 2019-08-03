@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.QueryBillDao">
+	
+	<!--获取票据查询列表返回map
+	<resultMap id="cxresultMap" type="com.yaltec.wxzj2.biz.bill.entity.QueryBill">
+		<result column="bm" 	    property="bm" />
+		<result column="pjh" 		property="pjh" />
+		<result column="regNo" 		property="regNo" />
+		<result column="sfqy" 		property="sfqy" />
+		<result column="sfuse" 		property="sfuse" />
+		<result column="sfzf" 		property="sfzf" />
+		<result column="h001" 	    property="h001" />
+		<result column="lymc" 	    property="lymc" />
+		<result column="w014" 	    property="w014" />
+		<result column="w006" 	    property="w006"/>
+		<result column="yhmc" 	    property="yhmc"/>
+	</resultMap>-->	
+	
+	<!-- 获取票据查询列表-->
+	<select id="findAll" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="com.yaltec.wxzj2.biz.bill.entity.QueryBill">
+	<![CDATA[
+            {call P_BillInfoQ(
+                #{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{min_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{max_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{type,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{ifonly,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>	
+	</select>
+	
+	<!-- 获取票据查询列表-->
+	<select id="findQueryBill" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="com.yaltec.wxzj2.biz.bill.entity.QueryBill">
+	<![CDATA[
+            {call P_BillInfoQ(
+                #{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{min_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{max_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{type,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{ifonly,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>	
+	</select>
+	
+	<!--查询票据页面的查询票据统计信息  -->
+    <select id="getQueryBillInfoSum" parameterType="java.util.Map" statementType="CALLABLE"
+    		resultType="com.yaltec.wxzj2.biz.bill.entity.QueryBill">
+        <![CDATA[
+            {call P_BillInfoQ2(
+                #{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{min_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{max_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{type,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{ifonly,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+	
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.BillMDao">
+	
+	<!-- 获取所有票据信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.bill.entity.BillM">
+	<![CDATA[
+		select bm,pjdm,pjmc,qsh,zzh,pjlbbm,pjlbmc,pjzs,pjls,username,czry,gmrq,yhmc,yhbh,regNo
+		from ReceiptInfo						
+	]]>
+		<where>
+			<if test="yhbh != null and '' != yhbh">
+			<![CDATA[and yhbh = '${yhbh}']]>	
+			</if>
+			<if test="qsh != null and '' != qsh">
+			<![CDATA[and qsh like '%${qsh}%']]>	
+			</if>
+			<if test="zzh != null and '' != zzh">
+			<![CDATA[and zzh like '%${zzh}%']]>	
+			</if>
+			<if test="regNo != null and '' != regNo">
+			<![CDATA[and regNo = '${regNo}']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm desc]]>				
+	</select>
+	
+	<!-- 保存票据信息(修改票据信息)-->
+	<select id="save" parameterType="java.util.Map"
+		statementType="CALLABLE">
+	<![CDATA[     
+		{call P_SordineReceiptSave (
+			#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pjdm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pjmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pjlbbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pjlbmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pjls,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pjzs,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{czry,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{gmrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{sfqy,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 保存票据信息前检查起始号qsh是否已用-->
+	<select id="findByQsh" resultType="int" parameterType="java.util.Map" >
+	<![CDATA[
+		select count(bm) from ReceiptInfoM where 
+		bm <> #{bm} and pjh>=#{qsh} and pjh<=#{zzh} and regNo = #{regNo} and bm<>'0000000000'
+	]]>	
+	</select>
+	
+	<!-- 修改票据信息前检查票据是否已用-->
+	<select id="updateCheckIsUse" resultType="int" parameterType="java.util.Map" >
+	<![CDATA[
+		select count(*) from ReceiptInfoM where bm = #{bm} and (sfuse=1 or sfzf=1)
+	]]>	
+	</select>
+	
+	<!-- 根据bm获取票据信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.bill.entity.BillM">
+	<![CDATA[select bm,pjdm,pjmc,qsh,zzh,pjlbbm,pjlbmc,pjzs,pjls,username,czry,gmrq,yhbh,yhmc,regNo
+		 from ReceiptInfo where bm = #{bm}
+	]]>
+	</select>
+	
+	<!-- 根据bm删除票据信息-->
+	<select id="delete" parameterType="java.util.Map" statementType="CALLABLE">		
+	<![CDATA[     
+		{call P_RecordDel(
+			#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+
+</mapper>

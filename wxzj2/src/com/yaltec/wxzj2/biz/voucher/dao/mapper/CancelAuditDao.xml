@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.CancelAuditDao">
+	
+	<!-- 凭证审核查询（已审和未审） -->
+	<select id="queryReviewCertificate" parameterType="java.util.Map" statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.ReviewCertificate">
+	<![CDATA[
+		{call P_VoucherQ(
+			#{dateType,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{unitcode,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{sfrz,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pzlx,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{amount,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 修改银行时，判断是否有记录 -->
+	<select id="IsThereRecord" parameterType="string" resultType="java.lang.String">
+    <![CDATA[  
+    	if exists (select p004 from SordineFVoucher where p005=#{p005[i]}  and  p012 in('01','02'))
+    	begin
+    		select '1'
+    	end
+    	else
+    	begin
+    		select '0'
+    	end
+    ]]>	
+	</select>
+	
+	<!-- 撤销审核时，判断是否有记录 -->
+	<select id="IsRecord" parameterType="string" resultType="java.lang.String">
+    <![CDATA[  
+    	if exists (select p004 from SordineFVoucher where p005=#{p005[i]} and  p012 in('01','02','03','05','06','23','24','25'))
+    	begin
+    		select '1'
+    	end
+    	else
+    	begin
+    		select '0'
+    	end
+    ]]>	
+	</select>
+	
+	<!-- 凭证审核_撤消审核_修改银行 -->
+	<update id="updateBank" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[    
+		update SordinePayToStore set yhbh=#{yhbh},yhmc=#{yhmc},unitcode=a.bm,unitname=a.mc from Assignment a 
+		where a.bankid=#{yhbh} and bm<>'00' and w007=#{p005};
+
+		update SordineDrawForRe set yhbh=#{yhbh},yhmc=#{yhmc},unitcode=a.bm,unitname=a.mc from Assignment a 
+		where a.bankid=#{yhbh} and bm<>'00' and z007=#{p005};
+
+		update SordineFVoucher set  p015=#{yhbh},p016=#{yhmc},unitcode=a.bm,unitname=a.mc from Assignment a 
+		where a.bankid=#{yhbh} and bm<>'00' and p005=#{p005};
+
+		update SordineFVoucher set  p018='102'+#{yhbh},p019=LEFT(p019,CHARINDEX('/',p019))+#{yhmc}   
+			where p005=#{p005} and left(p018,3)='102';
+	]]>
+	</update>
+	
+	
+	<!-- 凭证审核_撤消审核_撤消审核 -->
+	<select id="cancelAudit" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[    
+		{call P_cancelAudit(
+			#{p004,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{p005,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.IndustryDao">
+	
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.property.entity.Industry">
+	<![CDATA[
+		select * from CommitTee
+	]]>
+		<where>
+			<if test="mc != null and '' != mc">
+			<![CDATA[and mc like '%${mc}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm]]>
+	</select>
+	
+	<select id="findByBm" parameterType="com.yaltec.wxzj2.biz.property.entity.Industry" resultType="com.yaltec.wxzj2.biz.property.entity.Industry">
+	<![CDATA[select * from CommitTee where bm=#{bm}]]>
+	</select>
+	
+	<select id="find" parameterType="com.yaltec.wxzj2.biz.property.entity.Industry" resultType="com.yaltec.wxzj2.biz.property.entity.Industry">
+	<![CDATA[select top 1 * from CommitTee order by bm DESC]]>
+	</select>
+	
+	  <!-- 删除业委会信息  -->
+    <delete id="delIndustry" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_RecordDel(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </delete>
+	
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+        	{ call P_CommitteeSave(
+        		#{bm,mode=IN,jdbcType=VARCHAR},
+				#{mc,mode=IN,jdbcType=VARCHAR},
+				#{contactPerson,mode=IN,jdbcType=VARCHAR},
+				#{tel,mode=IN,jdbcType=VARCHAR},
+				#{address,mode=IN,jdbcType=VARCHAR},
+				#{seupdate,mode=IN,jdbcType=VARCHAR},
+				#{approvaldate,mode=IN,jdbcType=VARCHAR},
+				#{approvalnumber,mode=IN,jdbcType=VARCHAR},
+				#{nbhdcode,mode=IN,jdbcType=DATE},
+				#{nbhdname,mode=IN,jdbcType=DATE},
+				#{unitcode,mode=IN,jdbcType=VARCHAR},
+				#{unitname,mode=IN,jdbcType=VARCHAR},
+				#{managebldgno,mode=IN,jdbcType=VARCHAR},
+				#{managehousno,mode=IN,jdbcType=VARCHAR},
+				#{manager,mode=IN,jdbcType=DATE},
+				#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+        	)}
+         ]]>
+    </select>
+    
+    <!-- 判断小区下是否存在业委会 -->
+    <select id="IsYWHOnXQ" resultType="java.lang.String" parameterType="java.util.Map">
+       <![CDATA[
+        	if exists (select * from COMMITtee where nbhdcode=#{nbhdcode} and bm <> #{bm})
+        	begin
+           		select '0'
+        	end
+        	else
+        	begin
+            	select '-1'
+       		end
+       ]]>
+    </select>
+	
+</mapper>

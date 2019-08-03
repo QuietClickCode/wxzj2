@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/task    
+    http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+	
+	<bean id="application" class="com.yaltec.comon.core.Application" init-method="init" >
+		<property name="dataHolder" ref="dataHolder" />
+	</bean>
+	
+	<!-- 开启自动依赖注入的扫描包路径: com.yaltec-->
+	<context:component-scan base-package="com.yaltec">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	
+	<task:annotation-driven />
+	
+	<!-- 引入配置文件 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:../config/_config.properties" />
+	</bean>
+	
+	<!-- 数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${db.driverClass}" />
+		<property name="url" value="${db.jdbcUrl}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+		<!-- 初始化连接大小 -->
+		<property name="initialSize" value="${db.initialSize}"></property>
+		<!-- 连接池最大数量 -->
+		<property name="maxActive" value="${db.maxActive}"></property>
+		<!-- 连接池最大空闲 -->
+		<property name="maxIdle" value="${db.maxIdle}"></property>
+		<!-- 连接池最小空闲 -->
+		<property name="minIdle" value="${db.minIdle}"></property>
+		<!-- 获取连接最大等待时间 -->
+		<property name="maxWait" value="${db.maxWait}"></property>
+	</bean>
+
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:../config/mybatis-config.xml" />
+		<!-- 自动扫描mapping.xml文件 -->
+		<property name="mapperLocations" value="classpath:com/yaltec/wxzj2/biz/**/dao/mapper/*.xml"></property>
+	</bean>
+	
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.yaltec.wxzj2.biz.*.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+
+	<!-- 事务管理transaction manager -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 配置事务的属性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 根据方法名指定事务的属性
+				 propagation：REQUIRED(事务传播性：多个方法共用一个事务)，
+				 REQUIRES_NEW为每个方法都用一个新的事务
+				 read-only="true"提高查询性能，且查询时不锁表-->
+			<tx:method name="add*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException"/>
+			<tx:method name="edit*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="modify*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="remove*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+
+			<tx:method name="insert*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="save*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="update*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="delete*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+
+			<tx:method name="execute*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+			<tx:method name="handle*"  propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="select*" read-only="true" />
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="list*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 配置事务切面 -->
+	<aop:config>
+		<!-- 解释一下(* com.evan.crm.service.*.*(..))中几个通配符的含义：
+			第一个 * —— 通配 任意返回值类型
+			第二个 * —— 通配 包com.evan.crm.service下的任意class
+			第三个 * —— 通配 包com.evan.crm.service下的任意class的任意方法
+			第四个 .. —— 通配 方法可以有0个或多个参数
+			综上：包com.evan.crm.service下的任意class的具有任意返回值类型、任意数目参数和任意名称的方法 -->
+		<aop:pointcut id="comMethods" expression="execution(public * com.yaltec.wxzj2.biz.*.service.impl.*.*(..))" />
+		<aop:advisor pointcut-ref="comMethods" advice-ref="txAdvice" />
+	</aop:config>
+	
+	<!-- 数据缓存持有类 -->
+	<bean id="dataHolder" class="com.yaltec.wxzj2.comon.data.DataHolder">
+		<property name="dataServies">
+			<set>
+				<bean class="com.yaltec.wxzj2.comon.data.service.AssignmentDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.BankDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.DeveloperDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.IndustryDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.MySysCodeDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.PropertyCompanyDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.ProjectDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.CommunityDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.BuildingDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.ParameterDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.DepositDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.RoleDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.VolumeLibraryDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.UserDataService"/>
+				<bean class="com.yaltec.wxzj2.comon.data.service.ArchivesDataService"/>
+
+			</set>
+		</property>
+	</bean>
+	
+</beans>

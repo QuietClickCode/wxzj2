@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.QueryADDao">
+    
+    <!-- 支取查询(模糊查询、申请编号、经办人)  -->
+    <select id="queryQueryAD" parameterType="java.util.Map" 
+    		resultType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[
+            {call P_DrawCaseByZTQ_BS(
+                #{dateType,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqsja,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{sqsjb,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{jbr,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{wxxm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+    
+    <!-- 支取查询(明细查询)  -->
+    <select id="queryQueryADMX" parameterType="java.util.Map" resultType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[
+            {call P_DrawListQ_BS(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{sfsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{unitcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 支取统计查询   -->
+    <select id="queryCountAD" parameterType="java.util.Map" resultType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[
+            {call P_queryCountAD_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sfsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+            )}
+        ]]>
+    </select>
+</mapper>

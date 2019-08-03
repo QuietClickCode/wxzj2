@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.ProjectDao">
+	
+	<!-- 查询所有项目信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.property.entity.Project" 
+		resultType="com.yaltec.wxzj2.biz.property.entity.Project">
+		<![CDATA[
+			select * from Project 
+		]]>
+			<where>
+				<if test="mc != null and '' != mc">
+				<![CDATA[and mc like '%${mc}%']]>	
+				</if>
+				<if test="district != null and '' != district">
+				<![CDATA[and district like '%${district}%']]>
+				</if>
+				<if test="address != null and '' != address">
+				<![CDATA[and address like '%${address}%']]>	
+				</if>
+			</where>
+		<![CDATA[ order by bm]]>
+	</select>
+	
+	<!-- 保存项目信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.property.entity.Project">
+		<![CDATA[
+			insert into Project(bm,mc,address,propertyHouse,propertyHouseArea,propertyOfficeHouse,
+			propertyOfficeHouseArea,publicHouse,publicHouseArea,districtID,district,unitCode,unitName,bldgNO,
+			payableFunds,paidFunds,other,remarks,recordDate,nbhdBak,HBID)
+			 values(#{bm},#{mc},#{address},#{propertyHouse},#{propertyHouseArea},#{propertyOfficeHouse},
+			 #{propertyOfficeHouseArea},#{publicHouse},#{publicHouseArea},#{districtID},#{district},
+			 #{unitCode},#{unitName},#{bldgNO},#{payableFunds},#{paidFunds},#{other},
+			 #{remarks},#{recordDate},#{nbhdBak},#{HBID})
+		]]>
+	</insert>
+	
+	<!-- 根据bm获取项目信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.Project">
+		<![CDATA[select bm,mc,address,propertyHouse,propertyHouseArea,propertyOfficeHouse,
+			propertyOfficeHouseArea,publicHouse,publicHouseArea,districtID,district,unitCode,unitName,bldgNO,
+			payableFunds,paidFunds,other,remarks,recordDate,nbhdBak
+		    from Project where bm=#{bm}]]>
+	</select>
+	
+	<!-- 修改项目信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.property.entity.Project">
+		<![CDATA[update Project set mc=#{mc},address=#{address},propertyHouse=#{propertyHouse},propertyHouseArea=#{propertyHouseArea},
+			propertyOfficeHouse=#{propertyOfficeHouse},propertyOfficeHouseArea=#{propertyOfficeHouseArea},publicHouse=#{publicHouse},
+			publicHouseArea=#{publicHouseArea},districtID=#{districtID},district=#{district},unitCode=#{unitCode},unitName=#{unitName},
+			bldgNO=#{bldgNO},payableFunds=#{payableFunds},paidFunds=#{paidFunds},other=#{other},remarks=#{remarks},recordDate=#{recordDate},
+			nbhdBak=#{nbhdBak} where bm=#{bm}]]>
+	</update>
+	
+	<!-- 删除项目前检查项目下是否有小区信息 -->
+	<select id="checkForDelProject" parameterType="java.util.Map" resultType="String">
+	<![CDATA[
+		if exists(select bm from NeighBourHood where xmbm=#{bm})
+			select '1'
+		else 
+			select '0'
+	]]>
+	</select>
+	
+	<!-- 删除项目信息 -->
+	<delete id="batchDelete" parameterType="java.util.Map">
+	<![CDATA[
+			if not exists (select bm from NeighBourHood where xmbm=#{bm})
+		begin
+			delete from project where bm=#{bm}
+		end
+	]]>
+	</delete>
+	
+	<!-- 根据MC获取项目信息（保存项目前检查项目名称是否重复）-->
+	<select id="findByMc" parameterType="com.yaltec.wxzj2.biz.property.entity.Project" resultType="com.yaltec.wxzj2.biz.property.entity.Project">
+	<![CDATA[select * from Project where mc=#{mc}]]>
+		<if test="bm != null and '' != bm">
+		<![CDATA[ and bm <> #{bm} ]]>
+		</if>
+	</select>
+	
+</mapper>

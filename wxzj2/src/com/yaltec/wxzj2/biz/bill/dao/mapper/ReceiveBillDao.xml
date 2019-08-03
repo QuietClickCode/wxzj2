@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.ReceiveBillDao">
+	
+	<!-- 获取所有票据接收信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiveBill">
+	<![CDATA[
+		select * from ReceiptAccept
+	]]>
+	<where>
+			<if test="yhbh != null and '' != yhbh">
+			<![CDATA[and yhbh like '%${yhbh}%']]>	
+			</if>
+	</where>
+	<![CDATA[ order by bm]]>				
+	</select>
+	
+	<!-- 保存票据接收信息-->
+	<insert id="save" parameterType="com.yaltec.wxzj2.biz.bill.entity.ReceiveBill">
+	<![CDATA[insert into ReceiptAccept(bm,qsh,zzh,yxzs,zfzs,ywrq,yhbh,yhmc) 
+            values(#{bm},#{qsh},#{zzh},#{yxzs},#{zfzs},getdate(),#{yhbh},#{yhmc})
+	]]>
+	</insert>
+	
+	<!-- 根据bm获取票据接收信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiveBill">
+	<![CDATA[
+		 select * from ReceiptAccept where bm=#{bm}
+	]]>
+	</select>
+	
+	<!-- 修改票据接收信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.bill.entity.ReceiveBill">
+	<![CDATA[
+			update ReceiptAccept set qsh=#{qsh},zzh=#{zzh},yxzs=#{yxzs},zfzs=#{zfzs},
+		    yhbh=#{yhbh},yhmc=#{yhmc} where bm=#{bm}
+	]]>
+	</update>
+	
+	<!-- 删除票据接收信息-->
+	<select id="batchDelete" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+            {call P_RecordDel(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!--获取表中最大的bm-->
+	<select id="findMaxBm"  resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiveBill">
+	<![CDATA[select top 1 * from ReceiptAccept order by bm DESC]]>
+	</select>
+
+</mapper>

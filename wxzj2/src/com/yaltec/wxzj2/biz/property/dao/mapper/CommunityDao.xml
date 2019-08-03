@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.CommunityDao">
+	
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.property.entity.Community">
+	<![CDATA[
+		select * from NeighBourHood
+	]]>
+		<where>
+			<if test="unitCode != null and '' != unitCode">
+			<![CDATA[UnitCode =#{unitCode}]]>	
+			</if>
+			<if test="mc != null and '' != mc">
+			<![CDATA[and mc like '%${mc}%']]>	
+			</if>
+			<if test="bm != null and '' != bm">
+			<![CDATA[and bm =#{bm}]]>	
+			</if>
+			<if test="xmbm != null and '' != xmbm">
+			<![CDATA[and xmbm =#{xmbm}]]>	
+			</if>
+			<if test="district != null and '' != district">
+			<![CDATA[and District like '%${district}%']]>	
+			</if>
+			<if test="address != null and '' != address">
+			<![CDATA[and address like '%${address}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm]]>
+	</select>
+	
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.Community">
+	<![CDATA[select * from NeighBourHood where bm=#{bm}]]>
+	</select>
+	
+	<select id="findByMc" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.Community">
+	<![CDATA[select * from NeighBourHood where mc=#{mc}]]>
+	</select>
+	
+	  <!-- 删除小区信息 -->
+    <delete id="delCommunity" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_RecordDel(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </delete>
+    
+    <!-- 保存小区前检查小区名称是否重复 -->
+    <select id="checkForSaveCommunity" resultType="java.lang.String" parameterType="java.util.Map">
+        <![CDATA[
+            if exists(select bm from NeighBourHood where bm <> #{bm} and mc=#{mc} )
+                select '3'
+            else 
+                select '0'
+        ]]>
+    </select>
+    
+	<!-- 保存、修改小区信息 -->
+    <select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+        {call P_NeighbhdSave_BS(
+        	#{bm,mode=IN,jdbcType=VARCHAR},
+			#{mc,mode=IN,jdbcType=VARCHAR},
+			#{xmbm,mode=IN,jdbcType=VARCHAR},
+			#{xmmc,mode=IN,jdbcType=VARCHAR},
+			#{address,mode=IN,jdbcType=VARCHAR},
+			#{propertyHouse,mode=IN,jdbcType=VARCHAR},
+			#{propertyOfficeHouse,mode=IN,jdbcType=VARCHAR},
+			#{districtID,mode=IN,jdbcType=VARCHAR},
+			#{district,mode=IN,jdbcType=VARCHAR},
+			#{publicHouse,mode=IN,jdbcType=VARCHAR},
+			#{propertyHouseArea,mode=IN,jdbcType=DECIMAL},
+			#{propertyOfficeHouseArea,mode=IN,jdbcType=DECIMAL},
+			#{publicHouseArea,mode=IN,jdbcType=DECIMAL},
+			#{unitCode,mode=IN,jdbcType=VARCHAR},
+			#{unitName,mode=IN,jdbcType=VARCHAR},
+			#{bldgNO,mode=IN,jdbcType=SMALLINT},
+			#{payableFunds,mode=IN,jdbcType=DECIMAL},
+			#{paidFunds,mode=IN,jdbcType=DECIMAL},
+			#{other,mode=IN,jdbcType=VARCHAR},
+			#{remarks,mode=IN,jdbcType=VARCHAR},
+			#{recordDate,mode=IN,jdbcType=DATE},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+        )}
+        ]]>
+    </select>
+	
+</mapper>

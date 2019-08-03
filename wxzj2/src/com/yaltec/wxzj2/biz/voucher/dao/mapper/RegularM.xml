@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.RegularMDao">
+
+	<!-- 查询定期管理列表-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.voucher.entity.RegularM"
+			                resultType="com.yaltec.wxzj2.biz.voucher.entity.RegularM">
+	<![CDATA[
+		select id, convert(varchar(10),begindate, 120) begindate,convert(varchar(10),enddate,120) enddate,advanceday,amount,remark,status,state,userid,username from regularm
+	]]>
+		<where>
+			<if test="status != null and '' != status">
+			<![CDATA[and status = '${status}']]>	
+			</if>
+			<if test="begindate != null and '' != begindate">
+			<![CDATA[and enddate>='${begindate}']]>	
+			</if>
+			<if test="enddate != null and '' != enddate">
+			<![CDATA[and enddate<='${enddate}']]>	
+			</if>
+		</where>
+	<![CDATA[ order by enddate]]>
+	</select>
+	
+	<!-- 保存定期管理信息 -->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call P_RegularMSave(
+			#{id,mode=IN,jdbcType=VARCHAR},
+			#{begindate,mode=IN,jdbcType=DATE},
+			#{enddate,mode=IN,jdbcType=DATE},
+			#{advanceday,mode=IN,jdbcType=VARCHAR},
+			#{amount,mode=IN,jdbcType=DECIMAL},
+			#{remark,mode=IN,jdbcType=VARCHAR},
+			#{status,mode=IN,jdbcType=VARCHAR},
+			#{state,mode=IN,jdbcType=VARCHAR},
+			#{userid,mode=IN,jdbcType=VARCHAR},
+			#{username,mode=IN,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+	
+	<!-- 根据id获取定期管理信息-->
+	<select id="findById" parameterType="String" resultType="com.yaltec.wxzj2.biz.voucher.entity.RegularM">
+	<![CDATA[select id, convert(varchar(10),begindate,120) begindate,convert(varchar(10),enddate,120) enddate,advanceday,
+			 amount,remark,status,state,userid,username from regularm where id=#{id}]]>
+	</select>
+	
+	<!-- 根据id删除定期管理信息-->
+	<delete id="delete" parameterType="String">
+	<![CDATA[delete from regularm where id=#{id}]]>
+	</delete>
+	
+	<!-- 根据bm批量删除开发单位信息-->
+	<delete id="batchDelete" parameterType="java.util.List">
+		<![CDATA[delete from regularm]]>
+		<where>
+			<foreach collection="list" index="index" item="id" open="(" separator="OR " close=")">
+				<![CDATA[id=#{id}]]>
+			</foreach>
+		</where>
+	</delete>
+	
+	<!-- 查询需要提醒的定期管理信息列表-->
+	<select id="findExpireAll" resultType="com.yaltec.wxzj2.biz.voucher.entity.RegularM">
+	<![CDATA[
+		select convert(varchar(10),begindate, 120) begindate,convert(varchar(10),enddate,120) enddate,advanceday,amount, 
+		case when datediff(day,getdate(),enddate)<=0  then '已经到期'
+		when advanceday-datediff(day,getdate(),enddate)>=0 then '将在'+convert(varchar(10),advanceday) +'天内到期' end remark,
+		status,state,userid,username from regularm where datediff(day,enddate,getdate())<=advanceday and state='0' order by enddate
+	]]>
+	</select>
+	
+	<!-- 更新是否到期的状态 -->
+	<update id="updateStatus">
+        <![CDATA[
+            update RegularM set status=0 where convert(varchar(10),enddate,120)>convert(varchar(10),getdate(),120)
+    		update RegularM set status=1 where convert(varchar(10),enddate,120)<=convert(varchar(10),getdate(),120)
+        ]]>        
+    </update>
+    
+    <!-- 查询需要提醒的定期管理信息个数-->
+	<select id="findExpireNum" resultType="int">
+	<![CDATA[
+		select count(*) from regularm where datediff(day,enddate,getdate())<=advanceday and state='0'
+	]]>
+	</select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.fixedDeposit.dao.DepositsDao">
+	<!-- 查询所有存款信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.fixedDeposit.entity.Deposits">
+		<![CDATA[ select * from fixedDeposit where begindate>#{begindate} and begindate<=#{enddate} order by begindate ]]>
+	</select>
+	
+	<!--添加存款信息-->
+	<insert id="save" parameterType="java.util.Map">
+		<![CDATA[insert into fixedDeposit (id,yhbh,yhmc,ckdw,money,begindate,enddate,yearLimit,rate,earnings) 
+			 values (NEWID(),#{yhbh},#{yhmc},#{ckdw},#{money},#{begindate},#{enddate},#{yearLimit},#{rate},#{earnings})]]>
+	</insert>
+	
+	<!-- 根据id获取存款信息-->
+	<select id="findById" parameterType="String" resultType="com.yaltec.wxzj2.biz.fixedDeposit.entity.Deposits">
+		<![CDATA[select * from fixedDeposit where id=#{id}]]>
+	</select>
+	
+	
+	<!-- 修改存款信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.fixedDeposit.entity.Deposits">
+		<![CDATA[update fixedDeposit set yhbh=#{yhbh},yhmc=#{yhmc},ckdw=#{ckdw},money=#{money},begindate=#{begindate},enddate=#{enddate},yearLimit=#{yearLimit},rate=#{rate},earnings=#{earnings} where id=#{id}]]>
+	</update>
+	
+	<!-- 根据id获取存款信息-->
+	<delete id="delete" parameterType="String" >
+		<![CDATA[delete from  fixedDeposit where id=#{id}]]>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertyport.dao.ImportDataDao">
+	
+	
+	<!-- 删除产权接口楼宇数据  -->
+	<delete id="deleteDFJBuilding">
+	<![CDATA[
+		delete from DFJ_BUILDING
+	]]>
+	</delete>
+	
+	<!-- 保存产权接口楼宇数据  -->
+	<select id="saveDFJBuilding" parameterType="java.util.List">
+		insert into DFJ_BUILDING (fid, f_house_no,f_project_id, f_floors, f_location, 
+		  f_modified_time, f_create_time, f_block, pre_fid,f_enterprise_name,F_OBTAIN_TIME) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.fid},#{item.f_house_no},#{item.f_project_id},#{item.f_floors},
+			#{item.f_location},#{item.f_modified_time},#{item.f_create_time},
+			#{item.f_block},#{item.pre_fid},#{item.f_enterprise_name},getdate())
+		</foreach>
+	</select>
+	
+	<!-- 删除产权接口网签数据  -->
+	<delete id="deleteDFJOnlineSign">
+	<![CDATA[
+		truncate table DFJ_ONLINE_SIGN
+	]]>
+	</delete>
+	
+	<!-- 保存产权接口网签数据  -->
+	<select id="saveDFJOnlineSign" parameterType="java.util.List">
+		insert into DFJ_ONLINE_SIGN (fid, f_room_id, f_total,f_modified_time, f_create_time, 
+		  f_owner, f_card_no, f_old_owner, f_old_cardno,f_serial,F_OBTAIN_TIME) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.fid},#{item.f_room_id},#{item.f_total},#{item.f_modified_time},
+			#{item.f_create_time},#{item.f_owner},#{item.f_card_no},#{item.f_old_owner},
+			#{item.f_old_cardno},#{item.f_serial},getdate())
+		</foreach>
+	</select>
+	
+	
+	<!-- 删除产权接口权利人数据  -->
+	<delete id="deleteDFJOwnerShip">
+	<![CDATA[
+		truncate table DFJ_OWNERSHIP
+	]]>
+	</delete>
+	
+	<!-- 保存产权接口权利人数据  -->
+	<select id="saveDFJOwnerShip" parameterType="java.util.List">
+		insert into DFJ_OWNERSHIP (fid, f_serial, f_owner, f_card_no, f_old_owner, 
+		f_old_cardno, f_create_time,F_OBTAIN_TIME) values
+		<foreach collection="list" item="item" index="index" separator=",">
+		(#{item.fid},#{item.f_serial},#{item.f_owner},#{item.f_card_no},#{item.f_old_owner},
+		#{item.f_old_cardno},#{item.f_create_time},getdate())
+		</foreach>
+	</select>
+	
+	<!-- 删除产权接口项目、小区数据  -->
+	<delete id="deleteDFJProject">
+	<![CDATA[
+		truncate table dfj_project
+	]]>
+	</delete>
+	
+	<!-- 保存产权接口项目、小区数据  -->
+	<select id="saveDFJProject" parameterType="java.util.List">
+		insert into dfj_project (fid, f_name, f_location,f_area, f_modified_time, 
+		  f_create_time, f_parent_id,F_OBTAIN_TIME) values
+		<foreach collection="list" item="item" index="index" separator=",">
+		(#{item.fid},#{item.f_name},#{item.f_location},#{item.f_area},#{item.f_modified_time},
+		#{item.f_create_time},#{item.f_parent_id},getdate())
+		</foreach>
+	</select>
+	
+	<!-- 删除产权接口房屋数据  -->
+	<delete id="deleteDFJRoom">
+	<![CDATA[
+		truncate table DFJ_ROOM
+	]]>
+	</delete>
+	
+	<!-- 保存产权接口房屋数据  -->
+	<select id="saveDFJRoom" parameterType="java.util.List">
+		insert into DFJ_ROOM (fid, f_parent_id,f_building_id, f_house_no, f_block, f_unit, 
+		f_floor, f_room_no, f_room_type, f_build_area, f_modified_time,f_sort_x, f_sort_y, 
+		f_location, f_nosale, f_nosale_memo,pre_fid,F_OBTAIN_TIME) values
+		<foreach collection="list" item="item" index="index" separator=",">
+		(#{item.fid},#{item.f_parent_id},#{item.f_building_id},#{item.f_house_no},
+		#{item.f_block},#{item.f_unit},#{item.f_floor},#{item.f_room_no},#{item.f_room_type},
+		#{item.f_build_area},#{item.f_modified_time},#{item.f_sort_x},#{item.f_sort_y},
+		#{item.f_location},#{item.f_nosale},#{item.f_nosale_memo},#{item.pre_fid},getdate())
+		</foreach>
+	</select>
+	
+	<!-- 删除产权接口权利人房屋关联表数据  -->
+	<delete id="deleteDFJRoomOwnerShip">
+	<![CDATA[
+		truncate table DFJR_ROOM_OWNERSHIP
+	]]>
+	</delete>
+	
+	<!-- 保存产权接口权利人房屋关联表数据  -->
+	<select id="saveDFJRoomOwnerShip" parameterType="java.util.List">
+		insert into DFJR_ROOM_OWNERSHIP (fid, f_room_id,f_ownership_id, f_modified_time, 
+		f_create_time,f_room_no,F_OBTAIN_TIME) values
+		<foreach collection="list" item="item" index="index" separator=",">
+		(#{item.fid},#{item.f_room_id},#{item.f_ownership_id},#{item.f_modified_time},
+		#{item.f_create_time},#{item.f_room_no},getdate())
+		</foreach>
+	</select>
+	
+	<!-- 保存产权接口数据导入结果信息 -->
+	<insert id="saveImportDataResult" parameterType="com.yaltec.wxzj2.biz.propertyport.entity.ImportDataResult">
+		insert into ImportDataResult(id,fileName,exportDate,remark,result,operatdate)
+		values(NEWID(),#{fileName},#{exportDate},#{remark},#{result},getdate())
+	</insert>
+	
+	<!-- 查询导入结果信息 -->
+	<select id="findImportDataResult" parameterType="java.util.Map" 
+		resultType="com.yaltec.wxzj2.biz.propertyport.entity.ImportDataResult" >
+	<![CDATA[ select * from ImportDataResult where convert(varchar(10),operatdate,120)>=#{begindate} and convert(varchar(10),operatdate,120)<=#{enddate} order by operatdate desc ]]>
+	</select>
+	
+</mapper>

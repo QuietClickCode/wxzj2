@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.PreSplitDao">
+	
+
+	<!-- 导出要进行分摊的房屋明细信息  -->
+	<select id="ExportFtFwInfo" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD">
+	<![CDATA[
+		${sqlstr}
+	]]>
+	</select>
+	<!-- 查询是否是铜梁 -->
+	<select id="queryIsTL" resultType="java.lang.String">
+	<![CDATA[
+		select bm from MYreg where r001 like '%铜梁%'
+	]]>
+	</select>
+	
+	
+	<!-- 获取支取分摊相关的楼宇 By 申请编号 -->
+	<select id="QryExportShareADLYB" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+	<![CDATA[
+		select lybh bm,lymc mc from system_DrawBS where userid=#{userid} and bm=#{bm}  and ISNULL(lybh,'')<>''
+		group by lybh,lymc order by lybh desc
+
+	]]>
+	</select>
+	 
+	<!-- 支取分摊明细导出查询 By 申请编号  -->
+	<select id="QryExportShareAD2" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+	<![CDATA[
+		  select bm,lymc,(select address from SordineBuilding where lybh=system_DrawBS.lybh) lyaddress,
+		(select isnull(ywhmc,'') from SordineBuilding where lybh=system_DrawBS.lybh) ywhmc,
+		(select isnull(wygsmc,'') from SordineBuilding where lybh=system_DrawBS.lybh) wygsmc,
+		  h001,h002,h003,h005,h006,h013,h015,h030,h031,bjye,lxye,pzje,bcpzje,isred,z001,z002,
+			z003,userid,z006 ftje,z004 zqbj,z005 zqlx,z023 zcje,h021,h023 from system_DrawBS where userid=#{userid} and bm=#{bm} and lybh=#{lybh}
+		union all
+		select '' bm,'' lymc,'' lyaddress,'' ywhmc,'' wygsmc,'99999999999999' h001,'' h002,'' h003,
+		'' h005,sum(h006) h006,'' h013,'' h015,SUM(h030) h030,SUM(h030) h031,SUM(h030) bjye,SUM(h030) lxye,
+		SUM(h030) pzje,SUM(h030) bcpzje,'' isred,'' z001,'' z002,max(z003),'' userid,SUM(z006) ftje,
+		SUM(z004)  zqbj,SUM(z005)  zqlx,SUM(z023)  zcje,SUM(h021) h021,'' h023 from system_DrawBS 
+		where userid=#{userid} and bm=#{bm} and lybh=#{lybh} ORDER BY h001,h002,h003,h005
+	]]>
+	</select>
+    
+	<!-- 支取分摊明细导出查询 By 申请编号 【铜梁专用】  -->
+	<select id="QryExportShareAD3" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+	<![CDATA[
+		  select bm,lymc,(select address from SordineBuilding where lybh=system_DrawBS.lybh) lyaddress,
+		(select isnull(ywhmc,'') from SordineBuilding where lybh=system_DrawBS.lybh) ywhmc,
+		(select isnull(wygsmc,'') from SordineBuilding where lybh=system_DrawBS.lybh) wygsmc,
+		  h001,h002,h003,h005,h006,h013,h015,h030,h031,bjye,lxye,pzje,bcpzje,isred,z001,z002,
+			z003,userid,z006 ftje,z004 zqbj,z005 zqlx,z023 zcje,h021,h023 from system_DrawBS 
+		where userid=#{userid} and bm=#{bm} ORDER BY h001,h002,h003,h005
+	]]>
+	</select>
+    
+</mapper>

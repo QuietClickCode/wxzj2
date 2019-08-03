@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.ProjectInterestFDao">
+
+	<!--项目利息单查询返回map-->
+	<resultMap id="xmresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.ProjectInterestF">
+		<result column="cwbm" 	    property="cwbm" />
+		<result column="bm" 	    property="bm" />
+		<result column="mc" 		property="mc" />
+		<result column="w006" 		property="w006" />
+		<result column="w002" 		property="w002" />
+	</resultMap>
+	
+	<!--项目利息单查询-->
+	<select id="queryProjectInterestF" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xmresultMap" >
+	    <![CDATA[  
+            {call P_ProjectInterestNote_BS(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>	
+	
+	<!-- 获取历史日期（年度日期） -->
+    <select id="getReviewNd" resultType="java.util.Map">
+        <![CDATA[
+            select distinct lsnd from Payment_history order by lsnd
+        ]]>
+    </select>	
+	
+	<!--项目利息单(导出)查询-->
+	<select id="findProjectInterestF" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xmresultMap" >
+	    <![CDATA[  
+            {call P_ProjectInterestNote_BS(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>		
+
+</mapper>

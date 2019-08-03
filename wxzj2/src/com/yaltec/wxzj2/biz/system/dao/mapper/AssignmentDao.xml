@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.AssignmentDao">
+	
+	<!-- 查询所有归集中心信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.Assignment">
+	<![CDATA[ select bm,mc,(select mc from SordineBank where bm=Assignment.bankid) bankid,bankno,manager,
+		FinanceSupervisor,FinancialACC,Review,Marker,tel,invokeBI from Assignment 
+	]]>
+		<where>
+			<if test="mc != null and '' != mc">
+			<![CDATA[ and mc like '%${mc}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm]]>
+	</select>
+	
+	<!--新增、修改归集中心信息-->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call P_AssignmentSave(
+			#{bm,mode=IN,jdbcType=VARCHAR},
+			#{mc,mode=IN,jdbcType=VARCHAR},
+			#{bankid,mode=IN,jdbcType=VARCHAR},
+			#{bankno,mode=IN,jdbcType=VARCHAR},
+			#{manager,mode=IN,jdbcType=VARCHAR},
+			#{financeSupervisor,mode=IN,jdbcType=VARCHAR},
+			#{financialACC,mode=IN,jdbcType=VARCHAR},
+			#{review,mode=IN,jdbcType=VARCHAR},
+			#{marker,mode=IN,jdbcType=VARCHAR},
+			#{tel,mode=IN,jdbcType=VARCHAR},
+			#{invokeBI,mode=IN,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+
+	<!-- 根据bm获取归集中心信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Assignment">
+	<![CDATA[select bm,mc,bankid,bankno,manager,financeSupervisor,financialACC,review,marker,tel,invokeBI from Assignment where bm=#{bm}]]>
+	</select>
+	
+	<!-- 根据bm批量删除归集中心信息-->
+	<delete id="batchDelete" parameterType="java.util.List">
+	<![CDATA[DELETE FROM Assignment]]>
+		<where>
+			<foreach collection="list" index="index" item="bm" open="(" separator="OR " close=")">
+			<![CDATA[bm=#{bm}]]>
+			</foreach>
+		</where>
+	</delete>
+</mapper>

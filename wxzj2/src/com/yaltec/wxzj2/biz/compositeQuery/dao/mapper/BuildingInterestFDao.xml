@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.BuildingInterestFDao">
+
+	<!--楼宇利息单查询返回map-->
+	<resultMap id="lyresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.BuildingInterestF">
+		<result column="bm" 	    property="bm" />
+		<result column="mc" 	    property="mc" />
+		<result column="w006" 		property="w006" />
+		<result column="w002" 		property="w002" />
+	</resultMap>
+	
+	<!--楼宇利息单查询-->
+	<select id="queryBuildingInterestF" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="lyresultMap" >
+	    <![CDATA[  
+            {call P_BuildingInterestNote_BS(
+            	#{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>	
+	
+	<!--楼宇利息单（导出）查询-->
+	<select id="findBuildingInterestF" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="lyresultMap" >
+	    <![CDATA[  
+            {call P_BuildingInterestNote_BS(
+            	#{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>	
+
+</mapper>

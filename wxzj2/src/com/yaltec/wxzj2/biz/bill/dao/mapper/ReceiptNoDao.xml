@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.ReceiptNoDao">
+	
+	<!-- 获取所有票据回传情况信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptNo">
+	<![CDATA[
+		select *,
+		case(status) 
+		when '1' then '已收到' 
+		when '0' then '未收到' 
+		end as statusName		
+		from ReceiptNo 
+	]]>
+	<where>
+			<if test="yhbh != null and '' != yhbh">
+			<![CDATA[and yhbh like '%${yhbh}%']]>	
+			</if>
+			<if test="status != null and '' != status">
+			<![CDATA[and status = '${status}']]>	
+			</if>		
+		</where>
+	<![CDATA[ order by filedate]]>				
+	</select>
+
+</mapper>

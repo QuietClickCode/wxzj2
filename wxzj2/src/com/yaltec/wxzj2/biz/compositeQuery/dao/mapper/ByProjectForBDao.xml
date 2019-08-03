@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.ByProjectForBDao">
+
+	<!--按项目余额查询返回map-->
+	<resultMap id="xmresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.ByCommunityForB">
+		<result column="xmbh" 	    property="xmbh" />
+		<result column="xmmc" 	    property="xmmc" />
+		<result column="jkje" 		property="jkje" />
+		<result column="zqje" 		property="zqje" />
+		<result column="bj" 		property="bj" />
+		<result column="lx" 		property="lx" />
+		<result column="ye" 		property="ye" />
+		<result column="mdate" 		property="mdate" />
+	</resultMap>
+	
+	<!--项目余额查询-->
+	<select id="queryByProjectForB" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xmresultMap" >
+	<![CDATA[  
+            {call P_ProjectExcessQ_BS(
+                #{mc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String}  
+            )}
+        ]]>
+	</select>	
+	
+	<!-- 项目余额（导出和打印）-->
+    <select id="findByProjectForB" parameterType="java.util.Map" statementType="CALLABLE" 
+        resultType="com.yaltec.wxzj2.biz.compositeQuery.entity.ByProjectForB">
+        <![CDATA[  
+            {call P_ProjectExcessQ_BS(
+                #{mc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String} 
+            )}
+        ]]>
+    </select>	
+
+</mapper>

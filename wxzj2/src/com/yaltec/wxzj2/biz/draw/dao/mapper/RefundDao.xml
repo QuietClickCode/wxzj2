@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.RefundDao">
+	
+	<!-- 查询退款信息-->
+	<select id="find" parameterType="java.util.Map" statementType="CALLABLE"
+        resultType="com.yaltec.wxzj2.biz.draw.entity.Refund">
+        <![CDATA[     
+            {call P_RefundQ_BS(
+                #{begindate,jdbcType=DATE,mode=IN},
+                #{enddate,jdbcType=DATE,mode=IN},
+                #{sfsh,jdbcType=SMALLINT,mode=IN},
+                #{username,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,jdbcType=VARCHAR,mode=IN},
+                #{lybh,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 获取业主退款打印的信息 -->
+    <select id="pdfQueryRefund" resultType="com.yaltec.wxzj2.biz.draw.entity.Refund">
+        <![CDATA[select a.lymc as lymc,a.h001 as h001 ,b.h002 as h002,b.h003 as h003,b.h005 as h005,
+         b.h010 as h010,a.z004 as z004 ,a.z005 as z005 ,a.z006 as z006 ,a.z008 as z008,
+         a.z012 as z012 ,a.z013 as z013 ,a.username as username ,a.z017 as z017,a.z018 as z018 
+         from SordineDrawForRe a, house b  where (a.z010='TK') and a.h001=b.h001 and a.z008 =#{z008}]]>
+    </select>
+    
+    <!-- 获取业主退款打印的信息(历史记录 -->
+    <select id="pdfQueryRefund_LS" resultType="com.yaltec.wxzj2.biz.draw.entity.Refund">
+        <![CDATA[ select a.lymc as lymc,a.h001 as h001 ,b.h002 as h002,b.h003 as h003,b.h005 as h005,
+         b.h010 as h010,a.z004 as z004 ,a.z005 as z005 ,a.z006 as z006 ,a.z008 as z008,
+         a.z012 as z012 ,a.z013 as z013 ,a.username as username ,a.z017 as z017,a.z018 as z018 
+         from Draw_history a, house b  where (a.z010='TK') and a.h001=b.h001 and a.z008 =#{z008}]]>
+    </select>
+    
+    <!-- 交款登记的删除 检验待删除的数据是否是自己的业务,返回查询的count -->
+    <select id="isOwnOfDataFDelPR" resultType="java.lang.Integer">
+        <![CDATA[select count(p004) from SordineFVoucher where p004=#{0} and p021=#{1}]]>
+    </select>
+    
+    <!-- 删除业主退款数据之前-检查业主退款数据是否已审核 -->
+    <!-- 删除房屋换购数据之前-检查房屋换购数据是否已审核 -->
+    <select id="checkForDelRefund" resultType="java.lang.String">
+        <![CDATA[
+            select distinct p004 from SordineFVoucher where p004=#{p004} and isnull(p005, '')<>''
+        ]]>
+    </select>
+    
+    <!-- 删除业主退款数据 -->
+    <update id="update" parameterType="java.lang.String" >
+        <![CDATA[
+            update  house set h013=b.z012 from house a,SordineDrawForRe b where a.h001=b.h001 and b.z008=#{p004};
+            delete from SordineFVoucher where p004=#{p004} and isnull(p005,'')='';
+            delete from SordineDrawForRe where z008=#{p004} and isnull(z007,'')='';
+        ]]>
+    </update>
+    
+    <!-- 保存业主退款-->
+    <select id="saveRefund" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[     
+            {call P_Refund_BS(
+                #{h001,jdbcType=VARCHAR,mode=IN},
+                #{z003,jdbcType=DATE,mode=IN},
+                #{yhbh,jdbcType=VARCHAR,mode=IN},
+                #{yhmc,jdbcType=VARCHAR,mode=IN},
+                #{zph,jdbcType=VARCHAR,mode=IN},
+                #{username,jdbcType=VARCHAR,mode=IN},
+                #{kfgsbm,jdbcType=VARCHAR,mode=IN},
+                #{kfgsmc,jdbcType=VARCHAR,mode=IN},
+                #{sftq,jdbcType=VARCHAR,mode=IN},
+                #{F_tkje,jdbcType=DECIMAL,mode=IN},
+                #{F_tklx,jdbcType=DECIMAL,mode=IN},
+                #{z017,jdbcType=VARCHAR,mode=IN},
+                #{z008,jdbcType=VARCHAR,mode=INOUT},
+                #{sfbl,jdbcType=VARCHAR,mode=IN},
+                #{z021,jdbcType=VARCHAR,mode=IN},
+                #{z022,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 获取房屋信息（业主退款） -->
+	<select id="getHouseForRefund" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+	<![CDATA[
+		select c.xqbh as xqbh, c.xqmc as xqmc, a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h005,a.h020,h033=isnull(a.h033, ''),a.h021,a.h006,a.h007,a.h010,a.h012,
+		a.h013,a.h014,a.h015,a.h030,a.h031, h023= (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(char(8),xs),h045 
+		from house a, Deposit b , SordineBuilding c where a.h022= b.bm and a.lybh=c.lybh and a.h001= #{bm} and h035 = '正常'
+	]]>
+	</select>
+  
+  <!-- 根据h001获取房屋最后一次交款的银行 -->
+	<select id="GetBankByH001" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+	<![CDATA[
+		select top 1 yhbh bm,yhmc mc from (
+			select yhbh,yhmc,w014 from SordinePayToStore where h001=#{h001} and w008<>'1111111111' and ISNULL(yhbh,'')<>''
+			union
+			select yhbh,yhmc,w014 from Payment_history where h001=#{h001} and w008<>'1111111111' and ISNULL(yhbh,'')<>''
+		) a order by w014 desc
+	]]>
+	</select>
+	
+	<!--  获取银行余额（业主退款） -->
+	<select id="getYHYEForRefund" resultType="java.lang.Double">
+	<![CDATA[
+		select isnull(sum(p008)-sum(p009),0) as yhye  from SordineFVoucher where isnull(p005, '') <> '' 
+		and left(p018,3)='102' and  p015=#{bm}
+	]]>
+	</select>
+	
+		<!--  检查房屋信息（业主退款） -->
+	<select id="checkHouseForRefund" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_SordineIfRecordedcheckBS(
+			#{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.DeveloperDao">
+	
+	<!-- 查询所有开发单位信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.property.entity.Developer"
+		resultType="com.yaltec.wxzj2.biz.property.entity.Developer">
+	<![CDATA[
+		select * from DeveloperCompany
+	]]>
+		<where>
+			<if test="mc != null and '' != mc">
+			<![CDATA[and mc like '%${mc}%']]>	
+			</if>
+			<if test="contactPerson != null and '' != contactPerson">
+			<![CDATA[and contactPerson like '%${contactPerson}%']]>	
+			</if>
+			<if test="address != null and '' != address">
+			<![CDATA[and address like '%${address}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm]]>
+	</select>
+	
+	<!--新增、修改开发单位信息-->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call P_DeveloperSave(
+			#{bm,mode=IN,jdbcType=VARCHAR},
+			#{mc,mode=IN,jdbcType=VARCHAR},
+			#{contactPerson,mode=IN,jdbcType=VARCHAR},
+			#{tel,mode=IN,jdbcType=VARCHAR},
+			#{address,mode=IN,jdbcType=VARCHAR},
+			#{companyType,mode=IN,jdbcType=VARCHAR},
+			#{qualificationGrade,mode=IN,jdbcType=VARCHAR},
+			#{qualificationNO,mode=IN,jdbcType=VARCHAR},
+			#{certificateIssuingDate,mode=IN,jdbcType=DATE},
+			#{certificateValidityDate,mode=IN,jdbcType=DATE},
+			#{legalPerson,mode=IN,jdbcType=VARCHAR},
+			#{registeredCapital,mode=IN,jdbcType=VARCHAR},
+			#{inspectionDate,mode=IN,jdbcType=DATE},
+			#{openingDate,mode=IN,jdbcType=DATE},
+			#{annualReview,mode=IN,jdbcType=VARCHAR},
+			#{ifReply,mode=IN,jdbcType=BIT},
+			#{approvalNumber,mode=IN,jdbcType=VARCHAR},
+			#{approvalDate,mode=IN,jdbcType=VARCHAR},
+			#{companyAccount,mode=IN,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+	
+	<!-- 根据bm获取开发单位信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.Developer">
+	<![CDATA[select bm,mc,contactPerson,tel,address,companyType,qualificationGrade,
+		 qualificationNO,convert(varchar(10),certificateIssuingDate,120) certificateIssuingDate,
+		 convert(varchar(10),certificateValidityDate,120) certificateValidityDate,legalPerson,
+		 registeredCapital,convert(varchar(10),inspectionDate,120) inspectionDate,
+		 convert(varchar(10),openingDate,120) openingDate,annualReview,ifReply,approvalNumber,
+		 convert(varchar(10),approvalDate,120) approvalDate,companyAccount from DeveloperCompany where bm=#{bm}
+	]]>
+	</select>
+	
+	<!-- 删除开发单位信息 -->
+    <delete id="delDeveloper" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_RecordDel(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </delete>
+	
+	<!-- 根据MC获取开发单位信息-->
+	<select id="findByMc" parameterType="com.yaltec.wxzj2.biz.property.entity.Developer" resultType="com.yaltec.wxzj2.biz.property.entity.Developer">
+	<![CDATA[select * from DeveloperCompany where mc=#{mc}]]>
+		<if test="bm != null and '' != bm">
+		<![CDATA[ and bm <> #{bm} ]]>
+		</if>
+	</select>
+	
+	<!-- 删除开发单位信息前检查  单位预交  中是否有开发单位信息 -->
+	<select id="checkForDel" parameterType="java.util.Map" resultType="String">
+	<![CDATA[
+		if exists(select dwbm from DeveloperComPay where dwbm = #{bm})
+			select '1'
+		else 
+			select '0'
+	]]>
+	</select>
+	
+</mapper>

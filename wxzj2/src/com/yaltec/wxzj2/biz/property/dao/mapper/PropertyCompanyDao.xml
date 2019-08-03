@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.PropertyCompanyDao">
+	
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.property.entity.PropertyCompany">
+	<![CDATA[
+		select * from PropertyCompany
+	]]>
+		<where>
+			<if test="mc != null and '' != mc">
+			<![CDATA[and mc like '%${mc}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm]]>
+	</select>
+	
+	<select id="findByBm" parameterType="com.yaltec.wxzj2.biz.property.entity.PropertyCompany" resultType="com.yaltec.wxzj2.biz.property.entity.PropertyCompany">
+	<![CDATA[select * from PropertyCompany where bm=#{bm}]]>
+	</select>
+	
+	<select id="find" parameterType="com.yaltec.wxzj2.biz.property.entity.PropertyCompany" resultType="com.yaltec.wxzj2.biz.property.entity.PropertyCompany">
+	<![CDATA[select top 1 * from PropertyCompany order by bm DESC]]>
+	</select>
+	
+	<!-- 保存物业公司前检查物业公司名称是否重复 -->
+    <select id="checkForSave" resultType="java.lang.String" parameterType="java.util.Map">
+        <![CDATA[
+           if exists ( select bm from PropertyCompany where mc=#{mc} and bm <> #{bm} )
+                select '3'
+            else 
+                select '0'
+        ]]>
+    </select>
+    
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE">
+       <![CDATA[
+       	 { call P_PropertyCompanySave_BS(
+       	 	#{bm,mode=IN,jdbcType=VARCHAR},
+			#{mc,mode=IN,jdbcType=VARCHAR},
+			#{contactPerson,mode=IN,jdbcType=VARCHAR},
+			#{tel,mode=IN,jdbcType=VARCHAR},
+			#{address,mode=IN,jdbcType=VARCHAR},
+			#{legalPerson,mode=IN,jdbcType=VARCHAR},
+			#{qualificationGrade,mode=IN,jdbcType=VARCHAR},
+			#{qualificationCertificate,mode=IN,jdbcType=VARCHAR},
+			#{managementStartDate,mode=IN,jdbcType=DATE},
+			#{managementEndDate,mode=IN,jdbcType=DATE},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+       	 )}
+       ]]>
+    </select>
+    
+	<!-- 删除物业公司信息 -->
+    <delete id="delPropertyCompany" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_RecordDel(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </delete>
+	
+</mapper>

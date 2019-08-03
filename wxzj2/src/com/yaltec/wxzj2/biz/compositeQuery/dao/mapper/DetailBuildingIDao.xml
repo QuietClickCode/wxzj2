@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.DetailBuildingIDao">
+
+	<!--楼宇利息明细查-->
+	<select id="queryDetailBuildingI" parameterType="java.util.Map" statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.compositeQuery.entity.DetailBuildingI" >
+	    <![CDATA[  
+            {call P_NandBIStatisticaltable(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>	
+	
+	<!--楼宇利息明细查-->
+	<select id="findDetailBuildingI" parameterType="java.util.Map" statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.compositeQuery.entity.DetailBuildingI" >
+	    <![CDATA[  
+            {call P_NandBIStatisticaltable(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>	
+
+</mapper>

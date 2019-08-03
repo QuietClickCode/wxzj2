@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.FSConfigDao">
+	
+	<!-- 查询所有非税配置信息-->
+	<select id="findAll" parameterType="com.yaltec.wxzj2.biz.system.entity.FSConfig"
+			resultType="com.yaltec.wxzj2.biz.system.entity.FSConfig">
+	<![CDATA[
+		select * from Fsconfig
+	]]>
+		<where>
+			<if test="ivcnode != null and '' != ivcnode">
+			<![CDATA[and ivcnode like '%${ivcnode}%']]>	
+			</if>
+			<if test="nodeuser != null and '' != nodeuser">
+			<![CDATA[and nodeuser like '%${nodeuser}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by id]]>
+	</select>
+	
+	<!-- 保存非税配置信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.system.entity.FSConfig">
+		<![CDATA[insert into Fsconfig(id,rgnCode,ivcnode,nodeuser,userpwd,authKey,deptCode)
+			    values(#{id},#{rgnCode},#{ivcnode},#{nodeuser},#{userpwd},#{authKey},#{deptCode})
+		]]>
+	</insert>
+	
+	<!-- 根据id获取非税配置信息-->
+	<select id="findById" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.FSConfig">
+		<![CDATA[select id,rgnCode,ivcnode,nodeuser,userpwd,authKey,deptCode from Fsconfig where id=#{id}]]>
+	</select>
+	
+	<!-- 修改非税配置信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.system.entity.FSConfig">
+		<![CDATA[update Fsconfig set rgnCode=#{rgnCode},ivcnode=#{ivcnode},nodeuser=#{nodeuser},userpwd=#{userpwd},
+		authKey=#{authKey},deptCode=#{deptCode} where id=#{id}]]>
+	</update>
+	
+	<!-- 根据bm删除非税配置信息-->
+	<delete id="delete" parameterType="String">
+		<![CDATA[delete from Fsconfig where id=#{id}]]>
+	</delete>
+</mapper>

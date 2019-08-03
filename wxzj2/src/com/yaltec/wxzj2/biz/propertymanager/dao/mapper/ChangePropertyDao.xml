@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertymanager.dao.ChangePropertyDao">
+	
+	<!-- 查询房屋变更信息(产权变更)-->
+	<select id="change" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.propertymanager.entity.ChangeProperty" >
+	<![CDATA[
+		{call p_ChangePropertyQBS(
+	        #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+	       	#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+	        #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+	        #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+	        #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+		)}
+	]]>
+	</select>
+
+	<!-- 查询房屋变更信息(打印清册)-->
+	<select id="inventory" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.propertymanager.entity.ChangeProperty" >
+	<![CDATA[
+		{call p_ChangePropertyQBS(
+	        #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+	       	#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+	        #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+	        #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+	        #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+		)}
+	]]>
+	</select>
+	
+	<!-- 保存编辑产权变更信息 -->
+    <select id="propertySave" parameterType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[  
+            {call p_unchangeEquity(
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h016,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{unchange,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>	
+    
+	<!--查询是否是江津 -->
+	<select id="queryIsJJ" resultType="String">
+		<![CDATA[
+		    select bm from MYreg where r001 like '%江津%'
+		]]>
+	</select>
+	
+	<!-- 保存产权变更-->
+    <select id="saveChangeProperty" parameterType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[     
+            {call p_ChangePropertyBS(
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h012,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h013,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h015,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h016,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h019,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{chgreason,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{unchange,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{note,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bgrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{OFileName,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{NFileName,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 删除票据接收信息 -->
+    <select id="delReceiveBill" parameterType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[
+            {call P_RecordDel(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select> 
+    
+    <!-- 获取单位房屋上报BS临时表最大tmepCode+1 -->
+    <select id="getMaxCodeHouse_dwBS" resultType="java.lang.String">
+        <![CDATA[
+            select isnull(max(tempCode),0)+1 from house_dwBS
+        ]]> 
+    </select>
+    
+    <!-- 插入单位房屋上报BS临时数据之前，清空当前用户的相关数据 -->
+    <insert id="deleteHouse_dwBSByUserid" parameterType="java.util.Map" >
+        <![CDATA[
+        	delete from house_dwBS where userid=#{userid}
+        ]]> 
+    </insert>  
+    
+    <!-- 保存产权变更批录 -->
+	<select id="saveChangeProperty_PL" parameterType="java.util.Map"  statementType="CALLABLE">
+		<![CDATA[
+			{call p_saveChangeProperty_PL(
+				#{tempCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!-- 查询房屋变更信息(产权变更)-->
+	<select id="queryChangeProperty2" resultType="com.yaltec.wxzj2.biz.propertymanager.entity.ChangeProperty" 
+		parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[     
+			{call p_ChangePropertyQBS(
+				#{xqbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{begindate,jdbcType=DATE,mode=IN},
+				#{enddate,jdbcType=DATE,mode=IN}
+			)}
+		]]>
+	</select>
+	
+	<!-- 插入单位房屋上报BS临时数据 -->
+	<insert id="insertHouseUnit" parameterType="java.util.List">
+		insert into house_dwBS(tempCode,xqbh,lybh,h001,unitCode,unitName,userid,username,
+				w003,lydz,h002,h003,h005,h006,h010,h011,h012,h013,h015,h017,h018,h019,h020,
+				h021,h022,h023,h030,h031,h044,h045,h052,h053,row,color) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.tempCode},#{item.xqbh},#{item.lybh},#{item.h001},#{item.unitCode},
+				#{item.unitName},#{item.userid},#{item.username},#{item.w003},#{item.lydz},
+				#{item.h002},#{item.h003},#{item.h005},#{item.h006},#{item.h010},#{item.h011},#{item.h012},
+		        #{item.h013},#{item.h015},#{item.h017},#{item.h018},#{item.h019},#{item.h020},
+				#{item.h021},#{item.h022},#{item.h023},#{item.h030},#{item.h031},#{item.h044},
+				#{item.h045},#{item.h052},#{item.h053},#{item.row},'black')
+		</foreach> 
+	</insert>
+	
+	<!-- 检查插入的单位房屋上报BS临时数据的房屋标准和该楼宇已经存在的房屋的标准是否一致 -->
+	<select id="check_jcbz" resultType="java.lang.String">
+		<![CDATA[
+			 select top 1 b.h022 from house_dwBS a,house b where a.tempCode=#{tempCode} 
+			and a.lybh=b.lybh and a.h022<>b.h022 and b.h035='正常'
+		]]> 
+	</select>
+	
+	<!-- 检查插入的单位房屋上报BS临时数据是否在房屋信息中已存在 -->
+	<select id="checkInsertHouseUnitData1" resultType="java.lang.String">
+		<![CDATA[
+			select top 1 b.h001 from house_dwBS a,house b where a.tempCode=#{tempCode} 
+			and a.lybh=b.lybh and a.h002=b.h002 and a.h003=b.h003 and a.h005=b.h005 and b.h035='正常'
+		]]> 
+	</select>
+	
+	<!-- 检查插入的单位房屋上报BS临时数据在交款库中是否已存在交款记录 -->
+	<select id="checkInsertHouseUnitData2" resultType="java.lang.String">
+		<![CDATA[
+			select top 1 h001 from SordinePayToStore where h001 in (select b.h001 from house_dwBS a,
+			house b where a.tempCode=#{tempCode} and a.lybh=b.lybh and a.h002=b.h002 and a.h003=b.h003 
+			and a.h005=b.h005 and b.h035='正常' and (a.h030<>0 or a.h031<>0))
+		]]> 
+	</select>
+	
+	<!-- 按楼宇、单元层和房号判断数据库房屋信息是否已存在和已交款 -->
+	<select id="checkIsHouseByLYAndH005" resultType="com.yaltec.wxzj2.biz.propertymanager.entity.HouseUnitImport" parameterType="java.lang.String" statementType="CALLABLE">
+		<![CDATA[
+			{call P_CheckIsHouseByLYAndH005_BS(
+				#{tempCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+			)}
+		]]>
+	</select>
+	
+	<!-- 批量打印产权变更证明 -->
+	<select id="pdfManyChangeProperty" resultType="com.yaltec.wxzj2.biz.propertymanager.entity.ChangeProperty" parameterType="java.util.Map">
+        <![CDATA[
+            ${sqlstr}
+        ]]>
+	</select>
+	
+</mapper>

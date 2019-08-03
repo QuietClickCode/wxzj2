@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.BankLogDao">
+	
+	<!-- 查询所有银行日志信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.BankLog" parameterType="java.util.Map">
+	<![CDATA[
+		select id,source,(select mc from SordineBank where bm=webservicelog.source) mc,method,type,
+		in_xml,out_xml,in_time,out_time,operatedate from webservicelog where 
+		convert(varchar(10),operatedate,120)>=convert(varchar(10),#{begindate},120)
+		and convert(varchar(10),operatedate,120)<=convert(varchar(10),#{enddate},120)
+	]]> 
+		<if test="source != null and '' != source">
+		<![CDATA[and source like '%${source}%' ]]>	
+		</if>
+	<![CDATA[and  LEN(out_xml)<150 and LEN(out_xml)>0 order by id desc]]>
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.ByCommunityForBDao">
+
+	<!--按小区余额查询返回map-->
+	<resultMap id="xqresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.ByCommunityForB">
+		<result column="xqbh" 	    property="xqbh" />
+		<result column="xqmc" 	    property="xqmc" />
+		<result column="jkje" 		property="jkje" />
+		<result column="jklx" 		property="jklx" />
+		<result column="zqje" 		property="zqje" />
+		<result column="zqlx" 		property="zqlx" />
+		<result column="bj" 		property="bj" />
+		<result column="lx" 		property="lx" />
+		<result column="ye" 	    property="ye" />
+		<result column="mdate"      property="mdate" />
+	</resultMap>
+	
+	<!--小区余额查询-->
+	<select id="queryByCommunityForB" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xqresultMap" >
+	<![CDATA[
+		 {call P_NeighbhdExcessQ_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String}                            
+            )}
+	]]>
+	</select>		
+
+<!-- 快速查询小区信息（弹出窗口）  and isnull(xmbm,'') like '%'+#xm#+'%' -->
+	<select id="queryOpenCommunityByBank" parameterType="java.util.Map" 
+			resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+	<![CDATA[
+		select a.xqbh bm,a.xqmc mc from SordineBuilding a,house_dw b,Assignment c
+		where a.lybh=b.lybh and b.h049=c.bm and a.xqmc like '%'+#{mc}+'%' 
+		and bankid like '%'+#{yhbh}+'%'
+		group by a.xqbh,a.xqmc
+	]]>
+        order by  a.xqbh
+	</select>
+	
+	<!--小区余额查询-->
+	<select id="findByCommunityForB" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="xqresultMap" >
+	<![CDATA[
+		 {call P_NeighbhdExcessQ_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String}                              
+            )}
+	]]>
+	</select>	
+</mapper>

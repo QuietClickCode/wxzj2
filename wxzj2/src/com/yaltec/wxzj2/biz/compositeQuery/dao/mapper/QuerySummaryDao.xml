@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QuerySummaryDao">
+	
+	<!--汇总台账查询返回map-->
+	<resultMap id="hzresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.ByBuildingForC1">
+		<result column="w003" 	    property="w003" />
+		<result column="w002" 		property="w002" />
+		<result column="w004" 		property="w004" />
+		<result column="w005" 		property="w005" />
+		<result column="xj1" 		property="xj1" />
+		<result column="z004" 		property="z004" />
+		<result column="z005" 	    property="z005" />
+		<result column="xj2" 		property="xj2" />
+		<result column="bjye" 	    property="bjye" />
+		<result column="lxye" 	    property="lxye" />
+		<result column="xj" 	    property="xj"/>
+	</resultMap>	
+	
+	<!--汇总台账查询-->
+	<select id="queryQuerySummary_BS" parameterType="java.util.Map" statementType="CALLABLE"  	
+		resultMap="hzresultMap" >	
+	<![CDATA[
+            {call P_SumledgerQ_BS(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{xssy,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!--汇总台账(导出)查询-->
+	<select id="findQuerySummary" parameterType="java.util.Map" statementType="CALLABLE"  	
+		resultMap="hzresultMap" >	
+	<![CDATA[
+            {call P_SumledgerQ_BS(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{xssy,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+</mapper>

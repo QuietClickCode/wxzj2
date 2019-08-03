@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.MonthReportOfBankDao">
+
+	<!--按银行统计月报查询返回map-->
+	<resultMap id="yhresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.MonthReportOfBank">
+		<result column="yhbh" 	    property="yhbh" />
+		<result column="yhmc" 	    property="yhmc" />
+		<result column="xqmc" 		property="xqmc" />
+		<result column="byhs" 		property="byhs" />
+		<result column="zjje" 		property="zjje" />
+		<result column="zjlx" 		property="zjlx" />
+		<result column="jshs" 		property="jshs" />
+		<result column="jsje" 		property="jsje" />
+		<result column="bqhs" 	    property="bqhs" />
+		<result column="bjye"       property="bjye" />
+		<result column="lxye"       property="lxye" />
+		<result column="bqje"       property="bqje" />
+		<result column="yxfp"       property="yxfp" />
+	</resultMap>
+	
+	<!--按银行统计月报-->
+	<select id="queryMonthReportOfBank" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="yhresultMap" >
+	    <![CDATA[
+            {call P_CounthmonthBank_BS(
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{cxfs,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+	<!--按银行统计月报-->
+	<select id="findReportOfBank" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="yhresultMap" >
+	    <![CDATA[
+            {call P_CounthmonthBank_BS(
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{cxfs,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+	</select>
+</mapper>

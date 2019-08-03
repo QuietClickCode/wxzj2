@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryUnitToPrepayDao">
+	<!--按楼宇余额查询返回map-->
+	<resultMap id="dwresultMap" type="com.yaltec.wxzj2.biz.payment.entity.UnitToPrepay">
+		<result column="rq" 	    property="rq" />
+		<result column="ywbh" 	    property="ywbh" />
+		<result column="jk" 		property="jk" />
+		<result column="zq" 		property="zq" />
+		<result column="xqmc" 		property="xqmc" />
+		<result column="ye" 		property="ye" />
+		<result column="ywbh" 		property="ywbh" />
+		<result column="pzbh" 		property="pzbh" />
+	</resultMap>
+	
+	<!--查询单位交支信息-->
+	<select id="queryQryUnitToPrepay" parameterType="java.util.Map" statementType="CALLABLE" 
+			resultMap="dwresultMap"  >
+	    <![CDATA[    
+            {call P_DeveloperComPayandDrawQ(
+                #{dwbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bdate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{edate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{Ifsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+	<select id="findUnitToPrepay" parameterType="java.util.Map" statementType="CALLABLE" 
+			resultMap="dwresultMap"  >
+	    <![CDATA[    
+            {call P_DeveloperComPayandDrawQ(
+                #{dwbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bdate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{edate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{Ifsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>
+    
+</mapper>

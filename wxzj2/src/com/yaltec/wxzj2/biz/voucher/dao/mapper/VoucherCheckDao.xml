@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.VoucherCheckDao">
+	
+	<!-- 根据凭证编号获取凭证信息(未审核或已审核) -->
+	<select id="get" parameterType="java.util.Map"  statementType="CALLABLE" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.VoucherCheck">
+	<![CDATA[
+		{call P_VoucherDBQ_BS(
+			#{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{cxnd,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{p004,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+		)}
+	]]>
+	</select>
+	
+	<!-- 凭证审核查询（已审和未审） -->
+	<select id="findAll" parameterType="java.util.Map" statementType="CALLABLE" 
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.QueryVoucherCheck">
+	<![CDATA[
+		{call P_VoucherQ(
+			#{dateType,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{unitcode,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{lsnd,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{sfrz,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{pzlx,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{amount,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 审核凭证 -->
+	<select id="save" parameterType="java.util.Map" statementType="CALLABLE" >
+	<![CDATA[
+		{call P_VoucherAudBS(
+			#{p004,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{fhr,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{fhsj,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{qxsj,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+    
+	<!-- 更新凭证附件的张数（凭证审核成功后） -->
+	<update id="updateP022" parameterType="java.util.Map">
+	<![CDATA[
+		update SordineFVoucher set p022= #{p022} where p004 = #{p004}
+	]]>
+	</update>
+	
+	<!-- 获取审核日期（审核日期） -->
+	<select id="getCheckDate" resultType="java.lang.String">
+	<![CDATA[
+		select top 1 convert(varchar(10), zwdate, 120) zwdate from SordineAnnual
+	]]>
+	</select>
+    
+	<!-- 获取起息日期 -->
+	<select id="getInterestDate" resultType="java.lang.String" parameterType="java.lang.String">
+	<![CDATA[
+		select convert(varchar(10), max(p024), 120) as p024 from SordineFVoucher where p004 = #{p004}
+	]]>
+	</select>
+	
+	<!-- 查询凭证审核附件（当年） -->
+	<select id="findVoucherAnnexDN" resultType="com.yaltec.wxzj2.biz.voucher.entity.VoucherAnnex" parameterType="java.util.Map">
+	<![CDATA[
+		select lymc,h001,w002,w006,w012,w013,username from SordinePayToStore where w008 = #{bm}
+		union all select lymc,h001,z002 as w002,z006 as w006,z012 as w012,
+		z014 as w013,username from SordineDrawForRe where z008 = #{bm} order by lymc,h001
+	]]>
+	</select>
+    
+	<!-- 查询凭证审核附件（历史） -->
+	<select id="findVoucherAnnexLS" resultType="com.yaltec.wxzj2.biz.voucher.entity.VoucherAnnex" parameterType="java.util.Map">
+	<![CDATA[
+		select lymc,h001,w002,w006,w012,w013,username from Payment_history where w008=#{bm} and lsnd=#{nd}
+		union all select lymc,h001,z002 as w002,z006 as w006,z012 as w012,
+		z014 as w013,username from Draw_history where z008=#{bm} and lsnd=#{nd} order by lymc,h001
+	]]>
+	</select>
+	
+	<!-- 凭证审核_根据业务编号查询摘要 -->
+	<select id="GetSummaryByP004" resultType="java.lang.String" parameterType="java.util.Map">
+	<![CDATA[
+		select isnull(min(p007),'') p007 from SordineFVoucher where p004=#{bm}
+	]]>
+	</select>
+	
+</mapper>

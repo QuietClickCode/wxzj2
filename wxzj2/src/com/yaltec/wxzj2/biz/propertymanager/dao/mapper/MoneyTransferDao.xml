@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertymanager.dao.MoneyTransferDao">
+	<!--查询交款转移记录  -->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.propertymanager.entity.MoneyTransfer" >
+		<![CDATA[
+			select a.w008,b.lymc jflymc,b.h001 jfh001,a.lymc dflymc,a.h001 dfh001,a.w006,a.w013,a.username from 
+			SordinePayToStore a,SordineDrawForRe b where a.w008=b.z008 and a.w010='JKZY' order by a.w013 desc
+		]]>
+	</select>
+	
+	<!-- 交款转移   -->
+    <select id="save" parameterType="java.util.Map"  statementType="CALLABLE">
+        <![CDATA[
+            {call P_savePaymentInfoAdjust(
+                #{jfh001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{dfh001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybha,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybhb,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ywrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{zybj,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{zylx,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!--删除交款转移记录  -->
+    <update id="delete" parameterType="java.util.Map">
+        <!--借方 -->
+		update house set h026=ISNULL(h026,0)+z006,h030=h030+z004,h031=h031+z005 from 
+		SordineDrawForRe a,house b where a.h001=b.h001 and a.z008=#{w008}
+		update house_dw set h026=ISNULL(h026,0)+z006,h030=h030+z004,h031=h031+z005,status=1 from 
+		SordineDrawForRe a,house_dw b where a.h001=b.h001 and a.z008=#{w008}
+		<!--贷方 -->
+		update house set h026=ISNULL(h026,0)-w006,h030=h030-w004,h031=h031-w005 from 
+		SordinePayToStore a,house b where a.h001=b.h001 and a.w008=#{w008}
+		update house_dw set h026=ISNULL(h026,0)-w006,h030=h030-w004,h031=h031-w005,status=0 from 
+		SordinePayToStore a,house_dw b where a.h001=b.h001 and a.w008=#{w008}
+		<!--删除交款库、支取库、凭证库 -->
+		delete from SordinePayToStore where w008=#{w008}
+		delete from SordineDrawForRe where z008=#{w008}
+		delete from SordineFVoucher where p004=#{w008}
+    </update> 
+</mapper>	

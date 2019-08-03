@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.DrawDao">
+    <!-- 判断支取是否已经分摊   -->
+    <select id="isShare" parameterType="java.lang.String" resultType="java.lang.Integer">
+        <![CDATA[
+			select count(*) from SordineDrawForRe where z011=#{z011}
+        ]]>
+    </select>
+    
+    <!-- 根据申请单位、时间(月份)和金额 判断是否已经添加过该申请  -->
+    <select id="getBmByContent" parameterType="java.util.Map" resultType="java.lang.String">
+        <![CDATA[
+        	select top 1 bm from SordineApplDraw where ISNULL(xmbm,'')=#{xmbm} and ISNULL(nbhdcode,'')=#{nbhdcode}
+        	and ISNULL(bldgcode,'')=#{bldgcode} and CONVERT(varchar(7),sqrq,120)=CONVERT(varchar(7),#{sqrq},120)
+        	and convert(decimal(12,2),sqje) =convert(decimal(12,2),#{sqje})
+        ]]>
+    </select>
+    
+	<!-- 保存支取申请信息-->
+    <insert id="add" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+        {call P_ApplyDraw_BS(
+                #{dwlb,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{dwbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqdw,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{jbr,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{nbhdname,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bldgname,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{wxxm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqrq,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{OFileName,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{OFileName,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{ApplyRemark,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </insert>
+    
+    <!-- 支取申请查询   -->
+    <select id="query" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyDraw">
+        <![CDATA[
+            {call P_ApplyDrawBYZTQ_BS(
+                #{dwlb,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{dwbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqsj,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{zt,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 根据bm查询支取申请   -->
+    <select id="get" parameterType="java.lang.String" resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyDraw">
+        <![CDATA[
+            select * from SordineApplDraw where bm=#{bm}
+        ]]>
+    </select>
+    
+    <!-- 删除支取申请信息 -->
+    <delete id="delete" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_DelApplyDraw(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </delete>
+    
+    <!-- 根据编号获取支取申请信息 -->
+    <select id="getApplydrawWebByBm" parameterType="java.lang.String" resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyDraw">
+        <![CDATA[select * from SordineApplDraw where bm=#{bm}]]>
+    </select>
+    
+    <!-- 修改支取申请   -->
+    <update id="update" parameterType="java.util.Map">
+    	<![CDATA[
+	    	update SordineApplDraw set dwlb=#{dwlb},dwbm=#{dwbm},sqdw=#{sqdw},xmbm=#{xmbm},xmmc=#{xmmc},
+	    	nbhdcode=#{nbhdcode},nbhdname=#{nbhdname},bldgcode=#{bldgcode},bldgname=#{bldgname},sqrq=#{sqsj},
+	    	sqje=#{sqje},jbr=#{jbr},wxxm=#{wxxm},ApplyRemark=#{ApplyRemark} where bm=#{bm}
+    	]]>
+    	
+    </update>
+</mapper>

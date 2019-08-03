@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.ReceiptInfoMDao">
+	
+	<!-- 获取当前有效的票据号，根据归集中心+用户，如果存在自己领用的票据，则用自己领用的，不存在则用银行领用的 -->
+	<select id="getNextBillNo" resultType="java.lang.String" parameterType="java.util.Map">
+	<![CDATA[
+		if not exists(select * from ReceiptInfoM where sfuse=0 and sfzf=0 and sfqy=1 and 
+		regNo >= 2014 and yhbh=#{yhbh} and usepart=#{userid})
+		begin
+			select isnull(min(pjh),'') pjh from ReceiptInfoM where sfuse=0 and sfzf=0 
+			and sfqy=1 and regNo >= 2014 and yhbh=#{yhbh} and usepart=''
+		end
+		else begin
+			select isnull(min(pjh),'') pjh from ReceiptInfoM where sfuse=0 and sfzf=0 
+			and sfqy=1 and regNo >= 2014 and yhbh=#{yhbh} and usepart=#{userid}
+		end
+	]]>
+	</select>
+    
+	<!-- 根据票据号获取对应批次号 -->
+	<select id="getRegNoByBillNo" resultType="java.lang.String" parameterType="java.lang.String">
+	<![CDATA[ select max(regNo) from ReceiptInfoM where pjh=#{w011} ]]>
+	</select>
+    
+	<!--保存票据号-->
+	<select id="saveBillNo" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_eidtPJPaymentReg(
+			#{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{w013,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{w011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{fingerprintData,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 处理交款库中批次号为null的记录 -->
+	<update id="handleRegNo">
+	<![CDATA[ 
+		update SordinePayToStore set regNo = r.regNo from ReceiptInfoM r 
+		where ISNULL(w011,'')<>'' and w011=r.pjh and SordinePayToStore.h001=r.h013 
+		and isnull(SordinePayToStore.regNo,'')<>r.regNo 
+	]]>
+	</update>
+	
+	<!-- 执行拼接的SQL语句获取打印票据 -->
+	<select id="execSQL" resultType="java.lang.String" parameterType="java.util.Map" statementType="STATEMENT">
+		${sql}
+	</select>
+	
+</mapper>

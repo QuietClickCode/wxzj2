@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.BankDao">
+	
+	<!-- 查询所有银行信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.Bank">
+		<![CDATA[ select * from sordineBank where mc like '%${mc}%' order by bm ]]>
+	</select>
+	
+	<!--保存银行信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.system.entity.Bank">
+		<![CDATA[insert into sordineBank(bm,mc,ms) values(#{bm},#{mc},#{ms})
+		]]>
+	</insert>
+	
+	<!-- 根据bm获取银行信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Bank">
+		<![CDATA[select bm,mc,ms from sordineBank where bm=#{bm}]]>
+	</select>
+	
+	<!-- 修改银行信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.system.entity.Bank">
+		<![CDATA[update sordineBank set mc=#{mc},ms=#{ms} where bm=#{bm}]]>
+	</update>
+	
+	 <!-- 根据MC获取银行信息-->
+	<select id="findByMc" parameterType="com.yaltec.wxzj2.biz.system.entity.Bank"     resultType="com.yaltec.wxzj2.biz.system.entity.Bank">
+	<![CDATA[select * from sordineBank where mc=#{mc}]]>
+		<if test="bm != null and '' != bm">
+		<![CDATA[ and bm <> #{bm} ]]>
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryBalanceDao">
+
+	<!--业主余额查询返回map-->
+	<resultMap id="yzresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.QueryBalance">
+		<result column="h001" 	    property="h001" />
+		<result column="lymc" 		property="lymc" />
+		<result column="h013" 		property="h013" />
+		<result column="h002" 		property="h002" />
+		<result column="h003" 		property="h003" />
+		<result column="h005" 		property="h005" />
+		<result column="nc" 		property="nc" />
+		<result column="zj" 	    property="zj" />
+		<result column="js" 		property="js" />
+		<result column="lx" 		property="lx" />
+		<result column="hj" 	    property="hj" />
+	</resultMap>
+	
+	<!--业主余额查询-->
+	<select id="queryQueryBalance" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="yzresultMap" >
+	<![CDATA[
+		 {call P_QueryOwnerBalance(
+                #{xmbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{w012,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{cxfs,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+             	#{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}                            
+            )}
+	]]>
+	</select>
+	<!-- 
+	   			#{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xssy,jdbcType=SMALLINT,mode=IN,javaType=java.lang.String},
+	-->
+	
+	
+	<!--业主余额(导出)查询-->
+	<select id="findQueryBalance" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="yzresultMap" >
+	<![CDATA[
+		 {call P_QueryOwnerBalance(
+                #{xmbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{w012,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{cxfs,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}                            
+            )}
+	]]>
+	</select>		
+
+</mapper>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.ShareFacilitiesDao">
+	<!-- 查询公共设施收益分摊登记信息-->
+	<select id="queryShareFacilities" parameterType="java.util.Map"
+		resultType="com.yaltec.wxzj2.biz.draw.entity.ShareFacilities">
+	<![CDATA[     
+		{call P_SordineIncomeFtIQ(
+			#{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{businessDate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{incType,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{bankCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+		)}
+	]]>
+	</select>
+	
+	<!-- 保存公共设施收益 -->
+	<select id="saveFacilities" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[  
+		{call P_SordineIncomeFtI(
+			#{nbhdcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{nbhdname,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{bldgcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{bldgname,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{handlingUser,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{incomeItems,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{businessDate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{incomeAmount,jdbcType=DECIMAL,mode=IN},
+			#{bankCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{bankName,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{receiptNO,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{incomeType,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+    
+	<!-- 删除登记的公共设施收益信息 -->
+	<select id="delFacilities" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_RecordDel(
+			#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 获取公共设施收益分摊打印(业主利息收益分摊打印)的信息 -->
+	<select id="pdfShareFacilities" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareFacilities">
+      <![CDATA[
+        select * from SordineIncome where bm = #{bm}
+      ]]>
+	</select>
+	
+	<!-- 修改已分摊的房屋信息的收益分摊金额 -->
+	<update id="updateShareFacilities" parameterType="java.util.Map">
+	<![CDATA[
+		update Tmp_Pay set w006 = #{ftje}  where userid = #{userid} and h001 = #{h001} and bm = #{bm}
+	]]>
+	</update>
+	
+	
+	<!-- 点击收益分摊树状结构中的添加方法获取房屋信息（根据房屋编号） 第一步 
+		  清空该操作员的数据并插入新的房屋信息数据-->
+	<insert id="shareFacilitiesI1" parameterType="java.util.Map">
+		<![CDATA[
+			delete from Tmp_Pay where userid = #{userid};
+			delete from Tmp_Pay where bm = #{bm};
+			insert into Tmp_Pay(bm,lybh,lymc,h001,h002,h003,h005,h013,h006,h010,h015,h016,w006,w003,h020,
+			syje,sqje,h030,username,userid,yhbh,yhmc)SELECT  #{bm},lybh,lymc,h001,h002,h003,h005,h013,
+			convert(decimal(15,2),h006) h006,convert(decimal(15,2),h010) h010, h015,h016,0,#{businessDate},
+			h020,#{incomeAmount},#{sqje},h030,#{username},#{userid},#{bankCode},#{bankName} from house 
+			where h001 in (${h001s}) and h035='正常';
+		]]>
+		</insert>
+    
+	<!-- 点击收益分摊树状结构中的添加方法获取房屋信息（根据房屋编号）第二步  
+		  处理分摊金额，合计，并把数据查询出来-->
+	<select id="shareFacilitiesI2" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" 
+		parameterType="java.util.Map" statementType="CALLABLE"> 
+	<![CDATA[
+		{call n_SordineShareFIBS(
+			#{ftfs,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{sqje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+		)}
+	]]>
+	</select>
+    
+	<!-- 保存业主公共设施收益分摊-->
+	<select id="saveShareFacilitiesI" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call p_ShareIBS(
+			#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+    
+    <!-- 业务利息收益分摊-获取已分摊的数据-->
+	<resultMap id="getShareInterestIMap" type="com.yaltec.wxzj2.biz.draw.entity.ShareInterest">
+		<result column="lymc" 	    property="lymc" />
+		<result column="h001" 		property="h001" />
+		<result column="h002" 		property="h002" />
+		<result column="h003" 		property="h003" />
+		<result column="h005" 		property="h005" />
+		<result column="h006"       property="h006" />
+		<result column="h010" 		property="h010" />
+		<result column="h013" 	    property="h013" />
+		<result column="h015" 		property="h015" />
+		<result column="h016" 	    property="h016" />
+		<result column="h019" 	    property="h019" />
+		<result column="h021" 	    property="h021" />
+		<result column="h022" 	    property="h022" />
+		<result column="h030" 	    property="h030" />
+		<result column="h031" 	    property="h031" />
+		<result column="w004" 	    property="w004" />
+		<result column="w005" 	    property="w005" />
+		<result column="w006" 	    property="ftje" />
+		<result column="serialno"   property="serialno" />
+		<result column="h0201"      property="h020"  />
+	</resultMap>
+    <select id="getShareInterest" resultMap="getShareInterestIMap"
+    		parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call P_SordineShareIncomeQ(
+			#{BusinessNO,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+
+</mapper>

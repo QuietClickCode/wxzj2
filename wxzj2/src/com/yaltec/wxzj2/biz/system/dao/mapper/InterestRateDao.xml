@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.InterestRateDao">
+	
+	<!--查询存款利率设置-->
+	<select id="findActiveRate" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.system.entity.ActiveRate" >
+		<![CDATA[
+			select * from SordineFDRate where convert(varchar(10),begindate,120)>=convert(varchar(10),#{begindate},120)
+				and convert(varchar(10),begindate,120)<=convert(varchar(10),#{enddate},120) order by bm
+		]]>
+	</select>
+    
+    <!-- 查询定期利率设置 -->
+	<select id="findFixedRate" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.system.entity.FixedRate">
+		<![CDATA[     
+			select * from TimeDepositRate where convert(varchar(10),begindate,120)>=convert(varchar(10),#{begindate},120)
+			and convert(varchar(10),begindate,120)<=convert(varchar(10),#{enddate},120) order by bm
+		]]>
+	</select>
+	
+	<!-- 查询房屋利率设置 -->
+	<select id="findHouseRate" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.system.entity.HouseRate">
+		<![CDATA[     
+			select a.h001,b.h013,b.h002,b.h003,b.h005,b.h030,b.h031,(b.h030+b.h031) bxhj,a.dqbm,a.hqje,b.h015,b.h021 
+			from house_llsz a,house b,SordineBuilding c 
+		]]>
+		<where>
+			<![CDATA[ a.h001=b.h001 and b.lybh=c.lybh and b.h035='正常' ]]>	
+			<if test="xqbh != null and '' != xqbh">
+			<![CDATA[and c.xqbh =#{xqbh}]]>	
+			</if>
+			<if test="lybh != null and '' != lybh">
+			<![CDATA[and c.lybh =#{lybh}]]>	
+			</if>
+			<if test="h013 != null and '' != h013">
+			<![CDATA[and b.h013 like '%${h013}%']]>	
+			</if>
+			<if test="h015 != null and '' != h015">
+			<![CDATA[and b.h015 like '%${h015}%']]>	
+			</if>
+			<if test="h040 != null and '' != h040">
+			<![CDATA[and b.h040 like '%${h040}%']]>	
+			</if>
+		</where>
+	<![CDATA[ order by a.h001]]>
+	</select>
+	
+	<!--保存存款利率设置信息-->
+	<insert id="addActiveRate" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+            {call P_SordineFDRateSave(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{mc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{rate,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</insert>
+	
+	<!--保存定期利率设置信息-->
+	<insert id="addFixedRate" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			 {call P_TimeDeposiTrateSave(
+			 	#{begindate,mode=IN,jdbcType=DATE},
+				#{bm,mode=IN,jdbcType=VARCHAR},
+				#{mc,mode=IN,jdbcType=VARCHAR},
+				#{dqbm,mode=IN,jdbcType=VARCHAR},
+				#{dqmc,mode=IN,jdbcType=VARCHAR},
+				#{rate,mode=IN,jdbcType=VARCHAR},
+				#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+			)}
+		]]>
+	</insert>
+
+	<!--保存房屋利率设置信息-->
+	<insert id="addHouseRate" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			 {call P_HouseRateSet(
+				#{xqbh,mode=IN,jdbcType=VARCHAR},
+				#{lybh,mode=IN,jdbcType=VARCHAR},
+				#{h001,mode=IN,jdbcType=VARCHAR},
+				#{szlb,mode=IN,jdbcType=VARCHAR},
+				#{hqje,mode=IN,jdbcType=VARCHAR},
+				#{dqbm,mode=IN,jdbcType=VARCHAR},
+				#{nll,mode=IN,jdbcType=VARCHAR},
+				#{username,mode=IN,jdbcType=VARCHAR},
+				#{bgyy,mode=IN,jdbcType=VARCHAR},
+				#{ywrq,mode=IN,jdbcType=DATE},
+				#{bclb,mode=IN,jdbcType=BIT},
+				#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+			)}
+		]]>
+	</insert>
+	
+	<!-- 根据bm获取活期利率编码 SordineFDRate-->
+	<select id="getActiveRate" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.ActiveRate">
+		<![CDATA[
+			select begindate,bm,mc,rate from SordineFDRate where bm=#{bm}
+		]]>
+	</select>
+	
+	<!-- 根据bm获取定期利率编码 TimeDepositRate-->
+	<select id="getFixedRate" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.FixedRate">
+		<![CDATA[
+			select begindate,bm,mc,dqbm,dqmc,rate from TimeDepositRate where bm=#{bm}
+		]]>
+	</select>
+	
+	<!--修改存款利率设置信息-->
+	<update id="updateActiveRate" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+            {call P_SordineFDRateSave(
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{mc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{rate,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</update>
+	
+	<!---修改定期利率设置信息-->
+	<update id="updateFixedRate" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			  {call P_TimeDeposiTrateSave(
+			 	#{begindate,mode=IN,jdbcType=DATE},
+				#{bm,mode=IN,jdbcType=VARCHAR},
+				#{mc,mode=IN,jdbcType=VARCHAR},
+				#{dqbm,mode=IN,jdbcType=VARCHAR},
+				#{dqmc,mode=IN,jdbcType=VARCHAR},
+				#{rate,mode=IN,jdbcType=VARCHAR},
+				#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+			)}
+		]]>
+	</update>
+	
+	<!---修改房屋利率设置信息-->
+	<update id="updateHouseRate" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			 {call P_HouseRateSet(
+				#{xqbh,mode=IN,jdbcType=VARCHAR},
+				#{lybh,mode=IN,jdbcType=VARCHAR},
+				#{h001,mode=IN,jdbcType=VARCHAR},
+				#{szlb,mode=IN,jdbcType=VARCHAR},
+				#{hqje,mode=IN,jdbcType=VARCHAR},
+				#{dqbm,mode=IN,jdbcType=VARCHAR},
+				#{nll,mode=IN,jdbcType=VARCHAR},
+				#{username,mode=IN,jdbcType=VARCHAR},
+				#{bgyy,mode=IN,jdbcType=VARCHAR},
+				#{ywrq,mode=IN,jdbcType=DATE},
+				#{bclb,mode=IN,jdbcType=BIT},
+				#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+			)}
+		]]>
+	</update>
+</mapper>

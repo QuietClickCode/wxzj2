@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.UserDao">	
+	
+	<!--查询所有的用户信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.User">
+	<![CDATA[ select a.userid userid,a.username username,a.sfqy,b.mc ywqx,c.mc unitcode from MYUser a,role b,Assignment c 
+		where a.ywqx=b.bm and a.unitcode=c.bm and userid like '%${userid}%' order by userid]]>
+	</select>
+	
+	<!-- 修改用户信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.system.entity.User">
+	<![CDATA[update MYUser set username=#{username},sfqy=#{sfqy},ywqx=#{ywqx},unitcode=#{unitcode},
+		rgnCode=#{rgnCode},ivcnode=#{ivcnode},nodeuser=#{nodeuser},userpwd=#{userpwd},authKey=#{authKey},deptCode=#{deptCode} where userid=#{userid}
+	]]>
+	</update>
+	
+	<!--添加用户信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.system.entity.User">
+	<![CDATA[insert into MYUser (userid,username,pwd,sfqy,ywqx,unitcode,sfjm,rgnCode,ivcnode,nodeuser,userpwd,authKey,deptCode) values
+		(#{userid},#{username},#{pwd},#{sfqy},#{ywqx},#{unitcode},1,#{rgnCode},#{ivcnode},#{nodeuser},#{userpwd},#{authKey},#{deptCode})
+	]]>
+	</insert>
+	
+	<!-- 重置用户密码123456-->
+	<update id="updatePassword" parameterType="String">
+	<![CDATA[update MYUser set pwd='c3949ba59abbe56e', sfjm='1' where userid=#{userid}]]>
+	</update>
+	
+	<!-- 修改用户密码-->
+	<update id="updatePasswordByUser" parameterType="com.yaltec.wxzj2.biz.system.entity.User">
+	<![CDATA[update MYUser set pwd=#{pwd} where userid=#{userid}]]>
+	</update>
+	
+	<!-- 获取打印配置信息放入select -->
+    <select id="printset" resultType="com.yaltec.wxzj2.biz.system.entity.CodeName">
+	<![CDATA[select moduleKey bm,name mc from configprint group by moduleKey,name]]>
+    </select>
+   
+	<!-- 根据userid获取打印设置信息 -->
+	<select id="getPrintSetInfo" resultType="com.yaltec.wxzj2.biz.comon.entity.PrintSet2">
+    <![CDATA[select * from printSet where userid=#{userid}]]>
+	</select>
+   
+	<!--删除一条交款信息-->
+	<select id="deleone" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call p_PaymentDelBS(
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{serialno,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{w004,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{sf,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 保存打印设置 -->
+    <select id="printSetSave" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[    
+            {call P_PrintSet(
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmlname1,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+               	#{xmlname2,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{operid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{opername,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <resultMap id="user" type="com.yaltec.wxzj2.biz.system.entity.User">
+		<id column="bm" property="bm" />
+		<result column="userid" 		property="userid" />		
+		<result column="username" 		property="username" />
+		<result column="pwd" 			property="pwd" />
+		<result column="sfqy" 			property="sfqy" />
+		<result column="ywqx" 			property="ywqx" />
+		<result column="unitcode" 		property="unitcode" />		
+		<result column="sfjm" 			property="sfjm" />
+		<result column="rgnCode" 		property="rgnCode" />
+		<result column="ivcnode" 		property="ivcnode" />
+		<result column="nodeuser" 		property="nodeuser" />
+		<result column="userpwd" 		property="userpwd" />
+		<result column="authKey" 		property="authKey" />
+		<result column="deptCode" 		property="deptCode" />
+		<association property="role" column="ywqx" select="getRoleById"/>
+	</resultMap>
+	
+	<select id="getRoleById" parameterType="java.lang.String" resultType="com.yaltec.wxzj2.biz.system.entity.Role">
+		<![CDATA[select * from [role] where bm=#{ywqx,jdbcType=VARCHAR}]]>
+	</select>
+	
+	<select id="findByUserid" parameterType="java.lang.String" resultMap="user">
+		<![CDATA[select * from [MYUser] where userid=#{userid}]]>
+	</select>
+	
+	<select id="getUserByBank" parameterType="java.lang.String" 
+			resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+	<![CDATA[SELECT a.userid bm,a.username mc from MYUser a, Assignment b,SordineBank c]]>
+		<where>
+			<![CDATA[c.bm=b.bankid and b.bm=a.unitcode]]>
+			<if test="value != null and '' != value">
+			<![CDATA[and c.bm like '%${value}%']]>	
+			</if>
+		</where>
+	</select>
+</mapper>

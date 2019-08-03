@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.ErrorBillDao">
+	
+	<!-- 查询错误票据信息-->
+	<select id="findAll" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="com.yaltec.wxzj2.biz.bill.entity.ErrorBill" >
+	<![CDATA[
+            {call P_queryErrorBill(
+            	#{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{type,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+            )}
+        ]]>				
+	</select>	
+	
+	<!-- 查询错误票据信息-->
+	<select id="findErrorBill" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="com.yaltec.wxzj2.biz.bill.entity.ErrorBill" >
+	<![CDATA[
+            {call P_queryErrorBill(
+            	#{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{type,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN}
+            )}
+        ]]>				
+	</select>
+
+	
+    <!-- 检查票据 通过票据号和注册号检查在本地是否存在对应的票据  -->
+    <select id="checkRegNo" parameterType="java.util.Map" 
+        resultType="java.lang.String">
+    	<![CDATA[
+        select COUNT(pjh) from ReceiptInfoM where pjh=#{w011} and regNo=#{regNo}
+        ]]>	
+    </select>
+    
+    <!-- 检查票据是否启用 -->
+    <select id="checkEditW011_1" parameterType="java.util.Map" 
+        resultType="java.lang.String">
+    	<![CDATA[
+        select bm from ReceiptInfoM where pjh= #{w011} and sfqy=1 and regNo=#{regNo}
+        ]]>	
+    </select>
+    
+    <!-- 检查票据是否已用或者作废 -->
+    <select id="checkEditW011_2" parameterType="java.util.Map" 
+        resultType="java.lang.String">
+    	<![CDATA[
+        select bm from ReceiptInfoM where pjh=#{w011} and regNo=#{regNo} and sfqy=1 
+                                                     and (sfzf=1 or sfuse=1)
+        ]]>	
+    </select>
+    
+    <!-- 判断是否采用接口 -->
+    <select id="checkEditW011_3" resultType="java.lang.Integer">
+        <![CDATA[
+            select count(h001) from webservice3 where isnull(h001,'') <> ''
+        ]]>
+    </select>
+    
+    <!-- 更新票据状态为已用，使用人，业主姓名 等信息1 -->
+    <update id="eidtW011_01" parameterType="java.util.Map">
+    	<![CDATA[
+        update ReceiptInfoM set fingerprintData=#{fingerprintData},sfuse=1,username=#{username},
+                           w013=convert(varchar(10),#{w013},120),h013=#{h001} 
+                           where pjh=#{w011} and sfqy=1 and regNo=#{regNo}
+        ]]>
+    </update>
+    
+    <!-- 更新票据状态为已用，使用人，业主姓名 等信息2 -->
+    <update id="eidtW011_02" parameterType="java.util.Map">
+    <![CDATA[
+        update ReceiptInfoM set fingerprintData=#{fingerprintData},sfuse=1,username=#{username},
+                               h013=#{h001},w013=convert(varchar(10),getdate(),120) 
+                               where pjh=#{w011} and sfqy=1 and regNo=#{regNo}
+        ]]>
+    </update>
+    
+    <!-- 修改交款信息的票据号1 -->
+    <update id="eidtW011PaymentReg_01" parameterType="java.util.Map">
+    	<![CDATA[
+        update SordinePayToStore set w011=#{w011},regNo=#{regNo} where w008=#{w008} and h001=#{h001}
+        ]]>
+    </update>
+    <!-- 修改交款信息的票据号2 -->
+    <update id="eidtW011PaymentReg_02" parameterType="java.util.Map">
+    <![CDATA[
+        update payment_history set w011=#{w011},regNo=#{regNo} where w008=#{w008} and h001=#{h001}
+        ]]>
+    </update>
+    <!-- 修改交款信息的票据号3 -->
+    <update id="eidtW011PaymentReg_03" parameterType="java.util.Map">
+    <![CDATA[
+        update webservice3 set sjh=#{w011} where convert(varchar(10),h020,120)=convert(varchar(10),#{w013},120) and h001=#{h001}
+        ]]>
+    </update>
+    
+    <!-- 根据票据号获取对应批次号 -->
+    <select id="queryRegNoByBill" resultType="java.lang.String" parameterType="java.util.Map">
+        <![CDATA[
+            select max(regNo) from ReceiptInfoM where pjh=#{w011}
+        ]]>
+    </select>
+    
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.QueryArrearDao">
+
+	<!--欠费催交查询返回map-->
+	<resultMap id="qfresultMap" type="com.yaltec.wxzj2.biz.property.entity.House">
+		<result column="h001" 	    property="h001" />
+		<result column="lymc" 	    property="lymc" />
+		<result column="h013" 		property="h013" />
+		<result column="h006" 		property="h006" />
+		<result column="h010" 		property="h010" />
+		<result column="h023" 		property="h023" />
+		<result column="h021" 		property="h021" />
+		<result column="h030" 		property="h030" />
+		<result column="address" 	property="address" />
+	</resultMap>
+	
+	<!--欠费催交查询-->
+	<select id="QueryArrear" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="qfresultMap" >
+	    <![CDATA[  
+            {call P_ArrearQry_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+	<!--欠费催交查询-->
+	<select id="findArrear" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="qfresultMap" >
+	    <![CDATA[  
+            {call P_ArrearQry_BS(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>		
+
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.VoucherDao">
+	<!-- 当业务编号w008不为空时，判断交款方式是否与该业务编号的交款方式一致。（保存交款登记信息之前） -->
+	<select id="checkPaymentTypeForPR" resultType="com.yaltec.wxzj2.biz.voucher.entity.Voucher"
+			parameterType="java.util.Map">
+		<![CDATA[
+            select * from SordineFVoucher where p004=#{p004} and p012=#{p012} and isnull(lybh,'')<>'' order by pzid desc
+        ]]>
+	</select>
+	
+	<!-- 交款登记的删除 检验待删除的数据是否是自己的业务,返回查询的count -->
+    <select id="isOwnOfData" resultType="com.yaltec.wxzj2.biz.voucher.entity.Voucher"  parameterType="java.util.Map">
+    	<![CDATA[
+        	select * from SordineFVoucher where p004 = #{w008} and p021 = #{username} order by pzid desc
+         ]]>
+    </select>    
+   
+    <!--根据业务编号批量删除凭证--> 
+    <delete id="delByP004" parameterType="java.util.List">
+		<![CDATA[DELETE FROM SordineFVoucher]]>
+		<where>
+			<foreach collection="list" index="index" item="p004" open="(" separator="OR " close=")">
+				<![CDATA[p004=#{p004}]]>
+			</foreach>
+		</where>
+	</delete>
+    
+</mapper>

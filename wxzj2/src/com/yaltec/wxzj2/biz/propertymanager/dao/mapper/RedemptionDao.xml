@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertymanager.dao.RedemptionDao">
+	
+	<!-- 查询房屋换购信息-->
+	<select id="findAll" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.propertymanager.entity.Redemption">
+		<![CDATA[     
+			{call P_RedemptionQ(
+				#{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{sfsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!--  检查换购日期不能小于原房屋交款日期(房屋换购) -->
+	<select id="checkForsaveRedemption" resultType="java.lang.String"
+		parameterType="java.util.Map">
+		<![CDATA[
+			select top 1 w014 from SordinePayToStore where h001 =#{h001a} and w014 > #{w003}
+		]]>
+	</select>
+	
+	<!-- 保存房屋换购-->
+	<select id="saveRedemption" parameterType="java.util.Map"  statementType="CALLABLE" >
+		<![CDATA[     
+			{call P_Redemption(
+				#{h001a,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h001b,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{w003,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{sbje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h012,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h022,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h023,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h006,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{h010,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{h021,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!-- 删除房屋换购-->
+	<select id="delRedemption" parameterType="java.util.Map" statementType="CALLABLE" >
+		<![CDATA[     
+			{call P_RecordDel(
+				#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!--查询打印房屋换购通知书-->
+	<select id="getRedemptionByW008" parameterType="String" resultType="com.yaltec.wxzj2.biz.propertymanager.entity.Redemption">
+		<![CDATA[ 
+			select d.h001 h001a,e.h001 h001b,d.lymc+d.h002+'单元'+d.h003+'层'+d.h005+'号' o047,e.lymc+e.h002+'单元'+e.h003+'层'+e.h005+'号' n047,a.h013,b.w012,a.h015,b.w004,b.w005,d.h006 o006,e.h006 n006,e.h021,case when e.h021>(b.w004+b.w005) then e.h021-(b.w004+b.w005) else 0 end ce,
+				(select (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(varchar(20),xs) from Deposit where bm=e.h022 ) h023,convert(varchar(10),a.ywrq,120) ywrq
+				from TRedemption a,SordinePayToStore b,
+				SordineDrawForRe c,house_dw d,house_dw e where 
+				a.w008=b.w008 and a.w008=c.z008 and a.h001_1=d.h001 and a.h001=e.h001 and a.w008=#{w008}
+				union
+				select d.h001 h001a,e.h001 h001b,d.lymc+d.h002+'单元'+d.h003+'层'+d.h005+'号' o047,e.lymc+e.h002+'单元'+e.h003+'层'+e.h005+'号' n047,a.h013,b.w012,a.h015,b.w004,b.w005,d.h006 o006,e.h006 n006,e.h021,case when e.h021>(b.w004+b.w005) then e.h021-(b.w004+b.w005) else 0 end ce,
+				(select (case xm when '00' then '房款' when '01' then '建筑面积' end)+'|'+convert(varchar(20),xs) from Deposit where bm=e.h022 ) h023,convert(varchar(10),a.ywrq,120) ywrq
+				from TRedemption a,Payment_history b,
+				Draw_history c,house_dw d,house_dw e where 
+				a.w008=b.w008 and a.w008=c.z008 and a.h001_1=d.h001 and a.h001=e.h001 and a.w008=#{w008}
+		]]>
+	</select>
+	
+	<!-- 获取房屋换购补交信息 -->
+	<select id="exportForHouseUnit" resultType="com.yaltec.wxzj2.biz.property.entity.House" 
+		parameterType="java.util.Map" >
+	<![CDATA[
+		select * from house where h001= #{h001} and h035 = '正常'
+	]]>
+	</select>
+</mapper>	

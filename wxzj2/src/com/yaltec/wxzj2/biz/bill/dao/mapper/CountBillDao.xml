@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.CountBillDao">
+	
+	<!-- 获取票据统计信息返回map-->
+	<resultMap id="tjresultMap" type="com.yaltec.wxzj2.biz.bill.entity.CountBill">
+		<result column="zzs" 	    property="zzs" />
+		<result column="yyzs" 		property="yyzs" />
+		<result column="pjze" 		property="pjze" />
+		<result column="zfzs" 		property="zfzs" />
+		<result column="wyzs" 		property="wyzs" />
+	</resultMap>	
+	
+	<!-- 获取票据统计信息-->
+	<select id="findAll" parameterType="java.util.Map" statementType="CALLABLE"
+			resultMap="tjresultMap">
+	 <![CDATA[
+            {call P_SordineBillSumQ(
+                #{qsh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zzh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{min_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{max_je,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{bank,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{type,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+
+</mapper>

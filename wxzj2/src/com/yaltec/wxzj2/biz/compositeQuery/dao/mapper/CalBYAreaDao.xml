@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.CalBYAreaDao">
+
+	<!--面积户数统计查询返回map-->
+	<resultMap id="mjresultMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.MonthReportOfBank">
+		<result column="kfgsmc" 	property="kfgsmc" />
+		<result column="lymc" 	    property="lymc" />
+		<result column="qcmj" 		property="qcmj" />
+		<result column="qchs" 		property="qchs" />
+		<result column="qcje" 		property="qcje" />
+		<result column="bymj" 		property="bymj" />
+		<result column="byhs" 		property="byhs" />
+		<result column="byje" 		property="byje" />
+		<result column="zjje" 	    property="zjje" />
+		<result column="jsje"       property="jsje" />
+		<result column="bqmj"       property="bqmj" />
+		<result column="bqhs"       property="bqhs" />
+		<result column="bjye"       property="bjye" />
+		<result column="bqje"       property="bqje" />
+	</resultMap>
+	
+	<!--面积户数统计-->
+	<select id="queryCalBYArea" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="mjresultMap" >
+	    <![CDATA[
+            {call p_CalBYArea_BS(
+            	#{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{xssy,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+	</select>		
+	
+		<!--查询面积户数统计-->
+	<select id="findCalBYArea" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="mjresultMap" >
+	    <![CDATA[
+            {call p_CalBYArea_BS(
+            	#{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{begindate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{enddate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{cxlb,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{pzsh,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{xssy,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+	</select>
+
+</mapper>

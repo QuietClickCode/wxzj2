@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.EntryVoucherDao">
+	
+	<!-- 查询凭证录入信息-->
+	<select id="findAll" parameterType="java.util.Map"
+		resultType="com.yaltec.wxzj2.biz.voucher.entity.ReviewCertificate">
+	<![CDATA[
+		select p004, convert(varchar(10),max(p023),120) as p023, max(p007) as p007,
+		sum(p008) as p008 from SordineFVoucher where isnull(p005, '') = '' and 
+		p012 = '33' and (p006>= #{begindate} ) and (p006 <=#{enddate}) group by p004
+	]]>
+	</select>
+	
+	<!-- 批量删除手工凭证 -->
+	<delete id="batchDelVoucher" parameterType="java.util.List">
+		<![CDATA[DELETE FROM SordineFVoucher]]>
+		<where>
+			<foreach collection="list" index="index" item="p004" open="(" separator="OR " close=")">
+				<![CDATA[p004=#{p004} and isnull(p005,'')='' ]]>
+			</foreach>
+		</where>
+	</delete>
+	
+	<!-- 获取新的业务编号 -->
+	<select id="getBusinessNO" parameterType="java.util.Map"  statementType="CALLABLE">
+	<![CDATA[
+		{call p_GetBusinessNO(
+			#{p006,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{p005,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 手工凭证录入保存 -->
+	<select id="add" parameterType="java.util.Map"  statementType="CALLABLE">
+	<![CDATA[
+		{call p_SordinePzlr(
+			#{p005,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{p006,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+			#{p007,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{p008,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{p009,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{p018,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{p019,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{p021,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{user,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{p022,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+</mapper>

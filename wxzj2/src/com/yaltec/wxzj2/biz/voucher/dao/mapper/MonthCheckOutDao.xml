@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.voucher.dao.MonthCheckOutDao">
+	
+	<!-- 月末结账界面初始化 -->
+	<select id="monthinit" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_monthEQ_BS(
+                #{SumPZ,javaType=java.lang.String,jdbcType=SMALLINT,mode=INOUT},
+                #{SumPZ_Y,javaType=java.lang.String,jdbcType=SMALLINT,mode=INOUT},
+                #{SumPZ_W,javaType=java.lang.String,jdbcType=SMALLINT,mode=INOUT},
+                #{SumJK,javaType=java.lang.String,jdbcType=SMALLINT,mode=INOUT},
+                #{SumZQ,javaType=java.lang.String,jdbcType=SMALLINT,mode=INOUT},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+	<!-- 获取审核日期（审核日期） -->
+    <select id="getReviewDate" resultType="java.lang.String">
+        <![CDATA[
+            select top 1 convert(varchar(10), zwdate, 120) zwdate from SordineAnnual
+        ]]>
+    </select>
+    
+	<!-- 月末结账前进行检查1 -->
+    <select id="checkOutEndOfMonthCA" resultType="java.lang.String">
+        <![CDATA[
+            select top 1 a.h001 from SordinePayToStore a,SordineFVoucher b where b.p012= '32'  
+            and a.w006<>'0' and a.w008=b.p004  and isnull(b.p005,'')=''
+        ]]>
+    </select>
+    
+	<!-- 月末结账前进行检查2 -->
+    <select id="checkOutEndOfMonthCB" resultType="com.yaltec.wxzj2.biz.voucher.entity.CheckoutEndOfMonth">
+        <![CDATA[
+            select a.p004,a.p005,sum(a.p008) as p008, sum(a.p009) as p009 from (select p004,isnull(p005,'') p005,
+            p008,p009 from SordineFVoucher )a group by  a.p005,a.p004 order by a.p004 ASC
+        ]]>
+    </select>
+    
+	<!-- 月末结账 -->
+    <update id="checkOutEndOfMonth" parameterType="java.util.Map">
+        <![CDATA[update SordineAnnual set zwdate=#{auddate}]]>
+    </update>
+    
+</mapper>

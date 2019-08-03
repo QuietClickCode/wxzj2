@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.HouseDwDao">
+	
+	<insert id="save" parameterType="com.yaltec.wxzj2.biz.property.entity.House">
+	<![CDATA[insert into house_dw (h001,lybh,lymc,h002,h003,h005,h020,h006,h010,h013,
+		h019,h015,h017,h018,h011,h012,h044,h045,h032,h033,h040,h016,h022,h023,h021,
+		h052,h053,h049,h050,h047,h007,h008,h009,h014,h024,h025,h026,h027,h028,h029,
+		h030,h031,h036,h037,h038,h039,h041,h042,h043,h046,h048,h001_house)
+		values(#{h001},#{lybh},#{lymc},#{h002},#{h003},#{h005},#{h020},#{h006},#{h010},#{h013},
+		 #{h019},#{h015},#{h017},#{h018},#{h011},#{h012},#{h044},#{h045},#{h032},#{h033},#{h040},
+		 #{h016},#{h022},#{h023},#{h021},#{h052},#{h053},#{h049},#{h050},#{h047},#{h007},#{h008},
+		 #{h009},#{h014},#{h024},#{h025},#{h026},#{h027},#{h028},#{h029},#{h030},#{h031},#{h036},
+		 #{h037},#{h038},#{h039},#{h041},#{h042},#{h043},#{h046},#{h048},#{h001})
+	]]>
+	</insert>
+	
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.property.entity.House" >
+	<![CDATA[update house_dw set lybh=#{lybh},lymc=#{lymc},h002=#{h002},h003=#{h003},h005=#{h005},
+		h020=#{h020},h006=#{h006},h010=#{h010},h013=#{h013},h019=#{h019},h015=#{h015},h017=#{h017},
+		h018=#{h018},h011=#{h011},h012=#{h012},h044=#{h044},h045=#{h045},h032=#{h032},h033=#{h033},
+		h040=#{h040},h016=#{h016},h022=#{h022},h023=#{h023},h021=#{h021},h052=#{h052},h053=#{h053},
+		h049=#{h049},h050=#{h050},h047=#{h047},h014=#{h014},h036=#{h036},h037=#{h037},h048=#{h048} 
+		where h001=#{h001}
+	]]>
+	</update>
+	
+	<select id="findByH001" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+	<![CDATA[select * from house_dw where h001=#{h001}]]>
+	</select>
+	
+	<select id="findByLymc" parameterType="com.yaltec.wxzj2.biz.property.entity.House" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+	<![CDATA[select top 1 * from house_dw where lybh=#{lybh} order by h001 DESC]]>
+	</select>
+	
+	<delete id="batchDel" parameterType="java.util.List">
+	<![CDATA[DELETE FROM house_dw]]>
+		<where>
+			<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+			<![CDATA[h001=#{h001}]]>
+			</foreach>
+		</where>
+	</delete>
+	
+	<!--获取临时表tempCode+1-->
+	<select id="getHousedwbsBM" resultType="String">
+	<![CDATA[
+		select isnull(max(tempCode),0)+1 from house_dwBS
+	]]> 
+	</select>
+	
+	
+	<!--根据用户删除单位房屋临时表数据-->
+	<delete id="delHouse_dwBSByUser" parameterType="String">
+	<![CDATA[ delete from house_dwBS where userid=#{userid}]]>
+	</delete>
+	
+	<!--添加数据到单位房屋临时表-->
+	<select id="insertHousedwbs" parameterType="java.util.List">
+		insert into house_dwBS(tempCode,xqbh,lybh,h001,unitCode,unitName,userid,username,
+				w003,lydz,h002,h003,h005,h006,h010,h011,h012,h013,h015,h017,h018,h019,h020,
+				h021,h022,h023,h030,h031,h044,h045,h052,h053,row,color) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.tempCode},#{item.xqbh},#{item.lybh},#{item.h001},#{item.unitCode},
+				#{item.unitName},#{item.userid},#{item.username},#{item.w003},#{item.lydz},
+				#{item.h002},#{item.h003},#{item.h005},#{item.h006},#{item.h010},#{item.h011},#{item.h012},
+		        #{item.h013},#{item.h015},#{item.h017},#{item.h018},#{item.h019},#{item.h020},
+				#{item.h021},#{item.h022},#{item.h023},#{item.h030},#{item.h031},#{item.h044},
+				#{item.h045},#{item.h052},#{item.h053},#{item.row},'black')
+		</foreach>
+	</select>
+	
+	<!-- 检查插入的单位房屋上报BS临时数据是否在房屋信息中已存在 -->
+	<select id="checkInsertHouseUnitData1" resultType="String" parameterType="String">
+	<![CDATA[
+		select  b.h001 from house_dwBS a,house b where a.tempCode=#{tempCode} 
+		and a.lybh=b.lybh and a.h002=b.h002 and a.h003=b.h003 and a.h005=b.h005 and b.h035='正常'
+	]]> 
+	</select>
+    
+	<!-- 检查插入的单位房屋上报BS临时数据在交款库中是否已存在交款记录  -->
+	<select id="checkInsertHouseUnitData2"  resultType="String" parameterType="String">
+	<![CDATA[
+		select h001 from SordinePayToStore where h001 in (select b.h001 from house_dwBS a,
+		house b where a.tempCode=#{tempCode} and a.lybh=b.lybh and a.h002=b.h002 and a.h003=b.h003 
+		and a.h005=b.h005 and b.h035='正常' and (a.h030<>0 or a.h031<>0))
+	]]> 
+	</select>
+    
+	<!--判断交存标准是否一致-->
+	<select id="check_jcbz"  resultType="String" parameterType="String">
+	<![CDATA[
+		   select b.h022 from house_dwBS a,house b where a.tempCode=#{tempCode} 
+			and a.lybh=b.lybh and a.h022<>b.h022 and b.h035='正常'
+	]]> 
+	</select>
+    
+	<!--按楼宇、单元层和房号判断数据库房屋信息是否已存在-->
+	<select id="checkIsHouseByLYAndH005" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.payment.entity.HousedwImport">
+	<![CDATA[
+		{call P_CheckIsHouseByLYAndH005_BS(
+			#{tempCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+		)}
+	]]>
+	</select>
+    
+	<!--保存导入的数据-->
+	<select id="saveImportHouseUnit" parameterType="java.util.Map"  statementType="CALLABLE">
+	<![CDATA[
+		{call p_saveImportHouseUnit(
+			#{tempCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},
+			#{rNote,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},                
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+   
+   <!--查询单位房屋上报（根据房屋编号查询单位房屋信息）-->
+	<select id="queryHouseUnitByH001s" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw" parameterType="java.util.Map">
+	<![CDATA[
+		select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+		isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+		isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+		a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+		a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+		a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+		isnull(a.userid,'') userid,isnull(a.HouseCode,'') HouseCode,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+		convert(char(10),a.h020,120) h0201,
+		((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+		(a.h041+a.h042) as ljje,c.h050  			
+		FROM (house a left join house_dw c on a.h001=c.h001)
+		  left join Deposit b on  a.h022 = b.bm 					
+		where a.h035='正常' and a.h001 in 
+	]]>
+	<foreach collection="h001s" index="index" item="h001" open="(" separator="," close=")">
+    	#{h001}
+    </foreach>
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+   
+	<!--查询单位房屋上报（根据楼宇获取所有的单位房屋信息）-->
+	<select id="queryHouseUnitAllByLybh" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+		isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+		isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+		a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+		a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+		a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+		isnull(a.userid,'') userid,isnull(a.HouseCode,'') HouseCode,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+		convert(char(10),a.h020,120) h0201,
+		((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+		(a.h041+a.h042) as ljje,c.h050  			
+		FROM (house a left join house_dw c on a.h001=c.h001)
+		  left join Deposit b on  a.h022 = b.bm 					
+		where a.h035='正常' 	and a.h020>= #{begindate} and a.h020<DateAdd(dd,1,#{enddate})	
+	]]>
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001 = #{h001} ]]>
+		</if>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh = #{lybh} ]]>
+		</if>		
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022 = #{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 = #{h049} ]]>
+		</if>	
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>	
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+  
+  
+	<!--统计查询单位房屋上报（根据楼宇获取所有的单位房屋信息）-->
+	<select id="queryHouseUnitAllByLybhSum" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		select count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031  
+		FROM house a left join house_dw c on a.h001=c.h001    
+		where a.h035='正常' 	and a.h020>= #{begindate} and a.h020<DateAdd(dd,1,#{enddate})	
+	]]>
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001 =#{h001} ]]>
+		</if>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh = #{lybh} ]]>
+		</if>	
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022 = #{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 = #{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>	
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>				
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>
+	</select>
+  
+	<!--查询单位房屋上报（根据小区获取所有的单位房屋信息）-->
+	<select id="queryHouseUnitAllByXqbh"   resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+			isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+			isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+			a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+			a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+			a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+			isnull(a.userid,'') userid,isnull(a.HouseCode,'') HouseCode,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+			convert(char(10),a.h020,120) h0201,
+			((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+			(a.h041+a.h042) as ljje,c.h050  			
+			FROM (house a left join house_dw c on a.h001=c.h001)
+			  left join Deposit b on  a.h022 = b.bm 
+	]]>
+		<where>	
+		<![CDATA[ a.h035='正常'	and a.h020>= #{begindate} and a.h020<DateAdd(dd,1,#{enddate})	]]>	
+			<if test="h001 != null and '' != h001">
+			<![CDATA[ and a.h001 =#{h001} ]]>
+			</if>
+			<if test="xqbh != null and '' != xqbh">
+			<![CDATA[ and (a.lybh in (select lybh from SordineBuilding where xqbh= #{xqbh})) ]]>	
+			</if>
+			<if test="h022 != null and '' != h022">
+			<![CDATA[ and a.h022 = #{h022}  ]]>
+			</if>
+			<if test="h049 != null and '' != h049">
+			<![CDATA[ and c.h049 = #{h049} ]]>
+			</if>		 
+			<if test="h011 != null and '' != h011">
+			<![CDATA[ and  a.h011 =#{h011}   ]]>
+			</if>	
+			<if test="h013 != null and '' != h013">
+			<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+			</if>
+			<if test="h047 != null and '' != h047">
+			<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+			</if>
+			<if test="h015 != null and '' != h015">
+			<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+			</if>				
+			<if test="h002 != null and '' != h002">
+			<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+			</if>
+			<if test="h003 != null and '' != h003">
+			<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+			</if>
+			<if test="h005 != null and '' != h005">
+			<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+			</if>
+		</where>
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+  
+	<!--统计单位房屋上报（根据小区获取所有的单位房屋信息）-->
+	<select id="queryHouseUnitAllByXqbhSum"   resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031    			
+			FROM house a left join house_dw c on a.h001=c.h001
+	]]>
+		<where>	
+		<![CDATA[ a.h035='正常' and a.h020>= #{begindate} and a.h020<DateAdd(dd,1,#{enddate}) ]]>	
+			<if test="h001 != null and '' != h001">
+			<![CDATA[ and a.h001 = #{h001} ]]>
+			</if>
+			<if test="xqbh != null and '' != xqbh">
+			<![CDATA[ and (a.lybh in (select lybh from SordineBuilding where xqbh= #{xqbh})) ]]>	
+			</if>
+			<if test="h013 != null and '' != h013">
+			<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+			</if>
+			<if test="h047 != null and '' != h047">
+			<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+			</if>
+			<if test="h015 != null and '' != h015">
+			<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+			</if>
+			<if test="h022 != null and '' != h022">
+			<![CDATA[ and a.h022 =#{h022}  ]]>
+			</if>
+			<if test="h049 != null and '' != h049">
+			<![CDATA[ and c.h049 =#{h049} ]]>
+			</if>		 
+			<if test="h011 != null and '' != h011">
+			<![CDATA[ and  a.h011 =#{h011}   ]]>
+			</if>				
+			<if test="h002 != null and '' != h002">
+			<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+			</if>
+			<if test="h003 != null and '' != h003">
+			<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+			</if>
+			<if test="h005 != null and '' != h005">
+			<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+			</if>
+		</where>
+	</select>
+  
+	<!--根据楼宇获取已选择已交的单位房屋信息-->
+	<select id="queryHouseUnitByYjByLybh" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[ 
+		   select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+		   isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+		   isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+		   a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+		   a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+		   a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+		   isnull(a.userid,'') userid,isnull(a.HouseCode,'') HouseCode,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+		   convert(char(10),a.h020,120) h0201,
+		   ((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+		   (a.h041+a.h042) as ljje,c.h050  	   		
+		   FROM (house a left join house_dw c on a.h001=c.h001)
+		  left join Deposit b on  a.h022 = b.bm 	
+		   where a.h035='正常' and  c.status=1 	 and a.h020>=#{begindate}  and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]>
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001=#{h001} ]]>
+		</if>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh =#{lybh} ]]>
+		</if>			
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022=#{h022} ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>		 
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+   
+	<!--统计根据楼宇获取已选择已交的单位房屋信息-->
+	<select id="queryHouseUnitByYjByLybhSum" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[ 
+		   select count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031 	   		
+		   FROM house a left join house_dw c on a.h001=c.h001 
+		   where a.h035='正常' and  c.status=1 	 and a.h020>=#{begindate}  and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]>
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001=#{h001} ]]>
+		</if>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh=#{lybh} ]]>
+		</if>			
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022 =#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>	
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>
+	</select>
+   
+	<!--根据小区获取已选择已交的单位房屋信息-->
+	<select id="queryHouseUnitByYjByXqbh" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[ 
+		   select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+		   isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+		   isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+		   a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+		   a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+		   a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+		   isnull(a.userid,'') userid,isnull(a.HouseCode,'') HouseCode,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+		   convert(char(10),a.h020,120) h0201,
+		   ((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+		   (a.h041+a.h042) as ljje,c.h050  
+
+		   FROM (house a left join house_dw c on a.h001=c.h001)
+		  left join Deposit b on  a.h022 = b.bm 		   		
+		   where a.h035='正常' and  c.status=1 	 and a.h020>=#{begindate}  and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]> 
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001 =#{h001} ]]>
+		</if>
+		<if test="xqbh != null and '' != xqbh">
+		<![CDATA[ and (a.lybh in (select lybh from SordineBuilding where xqbh= #{xqbh})) ]]>	
+		</if>
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022=#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>	
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+   
+	<!--根据小区获取已选择已交的单位房屋信息-->
+	<select id="queryHouseUnitByYjByXqbhSum" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[ 
+		   select  count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031 	   		
+		   FROM house a left join house_dw c on a.h001=c.h001 
+		   where a.h035='正常' and  c.status=1 	 and a.h020>=#{begindate}  and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]> 
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001 =#{h001} ]]>
+		</if>
+		<if test="xqbh != null and '' != xqbh">
+		<![CDATA[ and (a.lybh in (select lybh from SordineBuilding where xqbh= #{xqbh})) ]]>	
+		</if>
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022 =#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>			
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>
+	</select>
+   
+	<!--根据楼宇获取其它的单位房屋信息-->
+	<select id="queryHouseUnitByOtherByLybh" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+		   isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+		   isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+		   a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+		   a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+		   a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+		   isnull(a.userid,'') userid,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+		   convert(char(10),a.h020,120) h0201,
+		   ((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+		   (a.h041+a.h042) as ljje,c.h050     			
+		   FROM (house a left join house_dw c on a.h001=c.h001)
+		  left join Deposit b on  a.h022 = b.bm   
+		   where a.h035='正常' and c.status=#{cxlb}  and a.h020>=#{begindate} and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]>
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001=#{h001} ]]>
+		</if>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh =#{lybh} ]]>
+		</if>			
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022 =#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>		
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>	
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+   
+	<!--统计根据楼宇获取其它的单位房屋信息-->
+	<select id="queryHouseUnitByOtherByLybhSum" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031  
+		   FROM house a left join house_dw c on a.h001=c.h001
+		   where  a.h035='正常'  and c.status=#{cxlb}   and a.h020>=#{begindate} and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]>
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001=#{h001} ]]>
+		</if>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh =#{lybh} ]]>
+		</if>			
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022=#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>	
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>	
+	</select>
+   
+	<!--根据小区获取其它的单位房屋信息-->
+	<select id="queryHouseUnitByOtherByXqbh" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select a.h001,a.lybh,a.lymc,a.h002,a.h003,a.h004,a.h005,a.h006,a.h007,a.h008,a.h009,a.h010,isnull(a.h011,'') h011,
+		   isnull(a.h012,'') h012,isnull(a.h013,'') h013,a.h014,isnull(a.h015,'') h015,a.h016,isnull(a.h017,'') h017,
+		   isnull(a.h018,'') h018,a.h019,a.h020,a.h021,isnull(a.h022,'') h022,isnull(a.h023,'') h023,a.h024,a.h025,
+		   a.h026,a.h027,a.h028,a.h029,(a.h028+a.h029) zqje,a.h030,a.h031,isnull(a.h032,'') h032,isnull(a.h033,'') h033,
+		   a.h034,a.h035,isnull(a.h036,0) h036,isnull(a.h037,'')  h037,isnull(a.h038,0) h038,a.h039,isnull(a.h040,'') h040,
+		   a.h041,a.h042,isnull(a.h043,0) h043,a.h044,a.h045,a.h046,isnull(a.h001cq,'') h001cq,a.username,
+		   isnull(a.userid,'') userid,isnull(c.h052,1) h052,isnull(c.h053,1) h053,c.status,(a.h030+a.h031) as ye, 
+		   convert(char(10),a.h020,120) h0201,
+		   ((case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs))as h0231,a.h030 as sjje,
+		   (a.h041+a.h042) as ljje,c.h050  
+		   FROM (house a left join house_dw c on a.h001=c.h001)
+		  left join Deposit b on  a.h022 = b.bm 
+		   where a.h035='正常'  and c.status=#{cxlb}  and a.h020>=#{begindate} and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]> 
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001 =#{h001} ]]>
+		</if>
+		<if test="xqbh != null and '' != xqbh">
+		<![CDATA[ and (a.lybh in (select lybh from SordineBuilding where xqbh= #{xqbh})) ]]>	
+		</if>	
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022=#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>	
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>	
+	<![CDATA[ order by len(a.lymc),a.lymc,len(a.h002),a.h002,len(a.h003),a.h003,len(a.h005),a.h005,a.h001 ]]>
+	</select>
+   
+	<!--根据小区获取其它的单位房屋信息-->
+	<select id="queryHouseUnitByOtherByXqbhSum" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031    			
+		   FROM house a left join house_dw c on a.h001=c.h001   			
+		   where a.h035='正常' and c.status=#{cxlb}    and a.h020>=#{begindate} and a.h020<DateAdd(dd,1,#{enddate}) 
+	]]> 
+		<if test="h001 != null and '' != h001">
+		<![CDATA[ and a.h001 =#{h001} ]]>
+		</if>
+		<if test="xqbh != null and '' != xqbh">
+		<![CDATA[ and (a.lybh in (select lybh from SordineBuilding where xqbh= #{xqbh})) ]]>	
+		</if>	
+		<if test="h013 != null and '' != h013">
+		<![CDATA[ and a.h013 like '%'+#{h013}+'%' ]]>
+		</if>
+		<if test="h047 != null and '' != h047">
+		<![CDATA[ and c.h047 like '%'+#{h047}+'%' ]]>
+		</if>
+		<if test="h015 != null and '' != h015">
+		<![CDATA[ and a.h015 like '%'+#{h015}+'%' ]]>
+		</if>
+		<if test="h022 != null and '' != h022">
+		<![CDATA[ and a.h022 =#{h022}  ]]>
+		</if>
+		<if test="h049 != null and '' != h049">
+		<![CDATA[ and c.h049 =#{h049} ]]>
+		</if>		 
+		<if test="h011 != null and '' != h011">
+		<![CDATA[ and  a.h011 =#{h011}   ]]>
+		</if>			
+		<if test="h002 != null and '' != h002">
+		<![CDATA[ and a.h002 like '%'+#{h002}+'%']]>
+		</if>
+		<if test="h003 != null and '' != h003">
+		<![CDATA[  and a.h003 like '%'+#{h003}+'%' ]]>
+		</if>
+		<if test="h005 != null and '' != h005">
+		<![CDATA[ and a.h005 like '%'+#{h005}+'%' ]]>
+		</if>	
+	</select>
+   
+	<!--根据楼宇编号获取房屋信息-->
+	<select id="getHouseInfoByLybh"  parameterType="String"  resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[	
+		   select a.lybh,a.h001,a.h002,a.h003,a.h005,isnull(a.h006,0)h006,a.h013,isnull(a.h021,0)h021,isnull(b.h030,0) h030,isnull(b.h031,0) h031,
+		 isnull(a.h052,'')h052,isnull(a.h053,'')h053,isnull(a.h054,'')h054,a.status 
+		 from house_dw a,house b where a.lybh=#{lybh}  and a.h001_house=b.h001 and a.h035='正常'
+		 order by a.h003,a.h005
+	]]>
+	</select>   
+   
+	<!--根据小区楼宇得到房屋信息的单元 -->
+	<select id="getH003ListByLyH002"  parameterType="java.util.Map"  resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[	
+		 select a.h003,b.h053 from house_dw a,(
+			select h003,min(convert(int,isnull(h053,0))) h053 from house_dw where lybh=#{lybh} and h002=#{h002} 
+			group by h003
+		) b where a.h003=b.h003 and lybh=#{lybh} and h002=#{h002} and h035='正常'
+		group by a.h003,b.h053  order by convert(int,b.h053) desc,a.h003 desc
+	]]>
+	</select>
+   
+	<!--统计单位房屋交款记录-->
+	<select id="queryJK_house_dw" parameterType="java.util.List" resultType="Integer">   	
+	<![CDATA[
+		   select count(h001)num from SordinePayToStore
+	]]>
+		<where>
+			<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+			<![CDATA[h001=#{h001}]]>
+			</foreach>
+		</where>
+	</select>
+   
+	<!--修改房屋状态为不交房屋-->
+	<update id="updateHouseDwBJ" parameterType="java.util.List">
+	<![CDATA[
+		   update house_dw set status='-1' where status='0' and
+	]]>
+		<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+		<![CDATA[h001=#{h001}]]>
+		</foreach>	
+	</update>
+   
+	<!--修改房屋状态为要交房屋-->
+	<update id="updateHouseDwYJ" parameterType="java.util.List">
+	<![CDATA[
+		   update house_dw set status='0' where status='-1' and
+	]]>
+		<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+		<![CDATA[h001=#{h001}]]>
+		</foreach>	
+	</update>
+
+	<!--修改选中房屋的房屋类型及归集中心等-->
+	<select id="updateHouse" parameterType="java.util.Map"  statementType="CALLABLE"
+		resultType="com.yaltec.wxzj2.biz.payment.entity.HouseUpdate">
+	<![CDATA[     
+		{call p_updateHouse(
+			#{h001s,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{h017,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{h018,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{h022,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{h023,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{h049,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{h050,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{isupdate,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+   
+	<!--房屋交款通知书-->
+	<select id="queryHouseUnitPrint" parameterType="java.util.List"
+		resultType="com.yaltec.wxzj2.biz.property.entity.HouseUnitPrint">
+	<![CDATA[
+		   select a.h001,a.h002,a.h003,a.h005,a.h013,a.h015,a.lymc,a.h050,a.h047,a.h006,a.h021,b.bankno,a.h022,c.xs,c.xm,
+		   convert(varchar(10),getdate(),120) today,(select mc from SordineBank where b.bankid=bm) as yhmc from house_dw a,Assignment b,(select bm,mc,xs, 
+		   (case xm when '00' then '房款' when '01' then '建筑面积' end) as xm from Deposit) c 	   		
+	]]>
+		<where>
+			<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+			<![CDATA[a.h001=#{h001}]]>
+			</foreach>	
+		<![CDATA[ and  a.h049=b.bm and a.h022=c.bm ]]>
+		</where>
+	<![CDATA[ order by a.h002,convert(int,h053),convert(int,h052),a.h003,a.h005,a.h001 ]]>
+	</select>
+   
+	<!--打印房屋信息-->
+	<select id="printHouseInfo" parameterType="java.util.List"
+		resultType="com.yaltec.wxzj2.biz.property.entity.HouseInfoPrint">
+	<![CDATA[
+		   select a.h001,a.h002,a.h003,a.h005,d.h006,a.h013,a.h015,d.h020,d.h021,d.h026,d.h028,d.h029,d.h030,d.h031,a.lymc,
+			   d.h041,d.h042,a.h050,a.h047,a.h006,a.h021,b.bankno,a.h022,c.xs,c.xm, 
+			convert(varchar(10),getdate(),120) today,(select mc from SordineBank where b.bankid=bm) as yhmc 
+			from house_dw a,Assignment b,
+			(select bm,mc,xs, (case xm when '00' then '房款' when '01' then '建筑面积' end) as xm from Deposit) c,house d 	   		   		
+	]]>
+		<where>
+			<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+			<![CDATA[a.h001=#{h001}]]>
+			</foreach>	
+		<![CDATA[  and  a.h049=b.bm and a.h022=c.bm and a.h001=d.h001 ]]>
+		</where>
+	<![CDATA[ order by a.h002,convert(int,h053),convert(int,h052),a.h003,a.h005,a.h001 ]]>
+	</select>
+   
+	<!--打印房屋清册-->
+	<select id="printHouseInfo2" parameterType="java.util.List"
+		resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select a.lymc,a.h013,a.h001,a.h002,a.h003,a.h005,a.h006,
+			(select (case xm when '00' then '房款' when '01' then '建筑面积' end)+'*'+convert(varchar(40),xs) from Deposit where bm=a.h022)h022,
+		 (b.h028+b.h029) h028,(b.h030+b.h031) h030,b.h031,convert(varchar(10),isnull(b.h020,''),120)h020 
+		 from house_dw a,house b 
+	]]>
+		<where>
+			<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+			<![CDATA[a.h001=#{h001}]]>
+			</foreach>	
+		<![CDATA[  and  a.h001=b.h001 ]]>
+		</where>
+	<![CDATA[ order by a.h001 ]]>
+	</select>
+   
+	<!--根据楼宇获取未交款数据-->
+	<select id="queryCapturePutsStatusBylybh" parameterType="String" resultType="int">
+	<![CDATA[ select count(*)id from house_dw where lybh=#{lybh} and h035='正常' and status in('0','2') ]]>
+   	
+	</select>
+   
+	<!--打印楼宇证明-->
+	<select id="getDepositCertificateInfo"    resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select isnull(max(b.kfgsbm),'') kfgsbm,isnull(max(b.kfgsmc),'') kfgsmc,a.lybh,a.lymc,count(c.h001) h001,
+			sum(c.h006) h006,sum(c.h021) h021,sum(c.h030) h030 from house_dw a,SordineBuilding b,house c 
+			where a.lybh=b.lybh and a.h035='正常' and a.h001=c.h001 and a.lybh=#{lybh} and a.status <> '-1' 
+			group by a.lybh,a.lymc
+	]]>
+	</select> 
+   
+	<!--导出统计选中房屋信息-->
+	<select id="queryExportHouseSum" parameterType="java.util.List" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select count(a.h001) h001,sum(a.h006) h006,sum(a.h021) h021,sum(a.h030) h030,sum(a.h031) h031 
+		   from house a,SordineBuilding b 
+	]]>
+		<where>
+			<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+			<![CDATA[a.h001=#{h001}]]>
+			</foreach>
+		<![CDATA[ and a.lybh=b.lybh]]>
+		</where>
+	</select>
+   
+	<!--导出选中房屋信息-->
+	<select id="queryExportHouse" parameterType="java.util.List" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		   select c.kfgsmc,c.address h047,a.*,(a.h030+a.h031) as ye, convert(char(10),a.h020,120) h0201,
+		   (case xm when '00' then '房款' when '01' then '面积' end)+'|'+convert(char(6),xs) h0231,a.h030 as sjje,a.h052,a.h053,
+		   (a.h041+a.h042) as ljje 
+		   from house_dw a, Deposit b,SordineBuilding c where a.h035='正常' and a.h022=b.bm and a.lybh=c.lybh 
+		   and 
+	]]>
+		<foreach collection="list" index="index" item="h001" open="(" separator="OR " close=")">
+		<![CDATA[ h001=#{h001}]]>
+		</foreach>
+	<![CDATA[ order by a.h002,convert(int,h053),convert(int,h052),a.h003,a.h005,a.h001]]>
+	</select>
+	
+	<!--获取统计信息（房屋数量、总面积、总交款、总利息）-->
+	<select id="getHouseDiagramSum_house" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		select SUM(b.h006)h006,SUM(b.h030)h030,SUM(b.h031)h031,SUM(b.h041)h041,COUNT(b.h001)h001 from 
+		house_dw a,house b,SordineBuilding c WHERE a.h001=b.h001 and a.lybh =c.lybh  
+		and c.xqbh in (select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and isnull(xmbm,'') like ''+#{xmbm}+'%') 
+	]]>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh=#{lybh} ]]>	
+		</if>
+		<if test="status != null and  '' != status">
+		<![CDATA[ and a.status=#{status}  ]]>	
+		</if>
+	<![CDATA[ and a.h035='正常' ]]>		
+	</select>
+	
+	<!--获取统计信息（应交资金）-->
+	<select id="getHouseDiagramSum_h021" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw">
+	<![CDATA[
+		select isnull(SUM(b.h021),0) h021,isnull(SUM(b.h006),0) h006 from house_dw a,house b,SordineBuilding c WHERE a.h001=b.h001 and 
+		a.lybh =c.lybh and c.xqbh in (select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') 
+	]]>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh=#{lybh} ]]>	
+		</if>
+		<if test="status != null and  '' != status">
+		<![CDATA[ and a.status=#{status}  ]]>	
+		</if>
+	<![CDATA[ and a.h035='正常' and a.status !='-1' ]]>		
+	</select>
+	
+	<!--获取统计信息（可用本金不足30%的房屋数量）-->
+	<select id="getHouseDiagramSum_h014" parameterType="java.util.Map" resultType="java.lang.String">
+	<![CDATA[
+		select isnull(count(a.h001),0) h014 from house_dw a,house b,SordineBuilding c where a.h001=b.h001 
+		and a.lybh =c.lybh and c.xqbh in (select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') 
+	]]>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh=#{lybh} ]]>	
+		</if>
+		<if test="status != null and  '' != status">
+		<![CDATA[ and a.status=#{status}  ]]>	
+		</if>
+	<![CDATA[ and a.h035='正常' and status='1' and b.h030<b.h021*0.3 and b.h030>=0 and b.h028>0 ]]>		
+	</select>
+	
+	<!--获取统计信息（不同状态的房屋数量）-->
+	<select id="getHouseDiagramSum_count" parameterType="java.util.Map" resultType="java.util.Map">
+	<![CDATA[
+		select status,count(h001) ct from house_dw a,SordineBuilding c where a.lybh =c.lybh 
+		and c.xqbh in (select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%')  
+	]]>
+		<if test="lybh != null and '' != lybh">
+		<![CDATA[ and a.lybh=#{lybh} ]]>	
+		</if>
+		<if test="status != null and  '' != status">
+		<![CDATA[ and a.status=#{status}  ]]>	
+		</if>
+	<![CDATA[ and h035='正常' group by status]]>		
+	</select>
+   
+	<!--根据楼宇集合查询所有房屋信息(房屋信息导入)-->
+	<select id="getHouseInfoByXqLyByLr_all" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.payment.entity.DiagramHouse">
+	<![CDATA[
+		select a.lybh,a.lymc,a.h001,a.h002,a.h003,a.h005, 
+		CASE WHEN LEN(a.h013)>=3  THEN isnull(a.h054,'')+left(a.h013,3)
+			  WHEN LEN(a.h013)<3 and LEN(a.h013)>0  THEN isnull(a.h054,'')+left(a.h013,3)
+		  ELSE ''  END h013,
+		  CASE WHEN a.status='-1'   THEN '-1' 
+			  WHEN  a.status='0'   THEN '0'
+			  WHEN  a.status='2'   THEN '2'
+			  WHEN  a.status='1'   THEN  CASE WHEN b.h030<b.h021*0.3 and 
+			  EXISTS(select * from SordinePayToStore where h001=a.h001 and ISNULL(w007, '')<>'') then '3' else '1' end
+		  ELSE -2  END status,
+		isnull(a.h052,'')h052,isnull(a.h053,'')h053			
+		from house_dw a,house b where a.h001=b.h001 and a.lybh in (${lybhs}) and a.h035='正常'
+	]]>	
+		<if test="isPropertyport == 0">
+		<![CDATA[ order by LEN(a.lymc),a.lymc,a.h002,a.h003 desc,a.h005,a.h001 	]]>
+		</if>	
+		<if test="isPropertyport == 1">
+		<![CDATA[ order by LEN(a.lymc),a.lymc,a.lybh,a.h002,convert(int,a.h053) desc,convert(int,a.h052),a.h003,a.h005,a.h001 	]]>
+		</if>
+	</select>
+   
+	<!--根据楼宇集合查询未选择未交房屋信息(房屋信息导入)-->
+	<select id="getHouseInfoByXqLyByLr_status_0" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.payment.entity.DiagramHouse">
+	<![CDATA[
+		   select a.lybh,a.lymc,a.h001,a.h002,a.h003,a.h005, 
+		CASE WHEN LEN(a.h013)>=3  THEN isnull(a.h054,'')+left(a.h013,3)
+			  WHEN LEN(a.h013)<3 and LEN(a.h013)>0  THEN isnull(a.h054,'')+left(a.h013,3)
+		  ELSE ''  END h013,
+		  CASE WHEN a.status='-1'   THEN '-1' 
+			  WHEN  a.status='0'   THEN '0'
+			  WHEN  a.status='2'   THEN '2'
+			  WHEN  a.status='1'   THEN  CASE WHEN b.h030<=b.h021*0.3 and b.h030>=0 then '3' else '1' end
+		  ELSE -2  END status,
+		isnull(a.h052,'')h052,isnull(a.h053,'')h053  				
+		from house_dw a,house b  where a.h001=b.h001 and a.lybh in (${lybhs}) and a.h035='正常' and status='0' 
+	]]>	
+		<if test="isPropertyport == 0">
+		<![CDATA[ order by LEN(a.lymc),a.lymc,a.h002,a.h003 desc,a.h005,a.h001 	]]>
+		</if>	
+		<if test="isPropertyport == 1">
+		<![CDATA[ order by LEN(a.lymc),a.lymc,a.lybh,a.h002,convert(int,a.h053) desc,convert(int,a.h052),a.h003,a.h005,a.h001 	]]>
+		</if>
+	</select>
+   
+	<!--根据小区楼宇得到房屋信息的单元 -->
+	<select id="geth002ListByXqLy"  parameterType="java.util.Map"  resultType="com.yaltec.wxzj2.biz.payment.entity.DiagramH002">
+	<![CDATA[	
+		select h.lybh,h.h002,MAX(convert(int,h.h052))h005 from house_dw h, SordineBuilding b 
+	]]>
+		<where>
+		<![CDATA[ h.lybh=b.lybh and h.h035='正常' ]]>
+			<if test="lybh != null and '' != lybh">
+			<![CDATA[ and h.lybh=#{lybh} ]]>	
+			</if>
+			<if test="lybh == null or '' == lybh">
+			<![CDATA[ and b.xqbh in (select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') ]]>	
+			</if>	
+		</where>	
+	<![CDATA[ group by h.lybh,h.lymc,h.h002 order by h.lybh,h.h002	 ]]>
+	</select>
+   
+	<!--根据小区楼宇得到房屋信息的单元(房屋信息录入) -->
+	<select id="geth002ListByXqLyByLr"  parameterType="java.util.Map"  resultType="com.yaltec.wxzj2.biz.payment.entity.DiagramH002">
+	<![CDATA[	
+		select h.lybh,h.lymc,h.h002,isnull((select max(a.h005)h005 from (select count(h005)h005 from house_dw 
+		where lybh=h.lybh and h002=h.h002 and h035='正常' group by h003)a),'0') h005 
+		from house_dw h, SordineBuilding b  
+	]]>
+		<where>
+		<![CDATA[ h.lybh=b.lybh and  h.h035='正常' ]]>
+			<if test="lybh != null and '' != lybh">
+			<![CDATA[ and h.lybh=#{lybh} ]]>	
+			</if>
+			<if test="lybh == null or '' == lybh">
+			<![CDATA[ and b.xqbh in (select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') ]]>	
+			</if>	
+		</where>
+	<![CDATA[ group by h.lybh,h.lymc,h.h002 order by h.lybh,h.h002	 ]]>
+	</select>
+   
+	<!--查询临时表数据-->
+	<select id="readtemp" parameterType="java.util.Map"  resultType="com.yaltec.wxzj2.biz.payment.entity.HousedwImport">
+	<![CDATA[select * from house_dwbs where tempCode=#{tempCode} order by row ]]>
+	</select>
+   
+	<select id="getTopHouseByXq" parameterType="java.util.Map"  resultType="com.yaltec.wxzj2.biz.payment.entity.HouseDw" >
+	<![CDATA[
+		select 
+		(select top 1 a.h017 from house_dw a, SordineBuilding b where a.lybh=b.lybh and b.xqbh in 
+		(select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') and isnull(a.h017,'')<>'')h017,
+		(select top 1 a.h022 from house_dw a, SordineBuilding b where a.lybh=b.lybh and b.xqbh in 
+		(select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') and isnull(a.h022,'')<>'')h022,
+		(select top 1 a.h049 from house_dw a, SordineBuilding b where a.lybh=b.lybh and b.xqbh in 
+		(select bm from NeighBourHood where bm like ''+#{xqbh}+'%' and xmbm like ''+#{xmbm}+'%') and isnull(a.h049,'')<>'')h049
+	]]>   	
+	</select>
+   
+	<!--验证导入的单位房屋上报数据-->
+	<select id="checkImportHousedw" parameterType="java.util.Map"  statementType="CALLABLE">
+	<![CDATA[
+		{call P_CheckImportHousedw(
+			#{tempCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+   
+	<!-- 分页查询楼宇编号(楼盘信息) -->
+	<select id="queryBuildingDiagram" parameterType="java.util.Map" resultType="java.lang.String">
+	<![CDATA[
+		select lybh from SordineBuilding a,NeighBourHood b where a.xqbh=b.bm 
+	]]>
+		<if test="xqbh != null and '' != xqbh">
+		<![CDATA[ and a.xqbh=#{xqbh} ]]>	
+		</if>
+		<if test="xmbm != null and  '' != xmbm">
+		<![CDATA[ and b.xmbm=#{xmbm}  ]]>	
+		</if>
+	<![CDATA[ order by a.xqbh,LEN(a.lymc),a.lymc]]>		
+	</select>
+	
+	<!-- 判断某楼宇下是否存在房屋 -->
+	<select id="isHousesBylybh" resultType="java.lang.Integer">
+		<![CDATA[
+			select count(h001) from house b where lybh=#{lybh} and h035='正常'
+		]]>
+	</select>
+	
+</mapper>

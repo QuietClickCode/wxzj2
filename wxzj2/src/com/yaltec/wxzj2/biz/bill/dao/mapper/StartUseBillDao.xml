@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.bill.dao.StartUseBillDao">
+	
+	<!-- 查询领用票据信息 --> 
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoM"
+		parameterType="java.util.Map">
+	<![CDATA[
+		select bm,pjh,sfqy,sfuse,sfzf,yhmc,usepart from ReceiptInfoM
+	]]>
+		<where>
+			<if test="yhbh != null and '' != yhbh">
+			<![CDATA[yhbh like '%${yhbh}%']]>	
+			</if>
+			<if test="usepart != null and '' != usepart">
+			<![CDATA[and usepart like '%${usepart}%']]>	
+			</if>
+			<if test="xsqy != null and '' != xsqy ">
+			<![CDATA[and ISNULL(usepart,'')<>'' ]]>	
+			</if>
+			<if test="qsh != null and '' != qsh">
+			<![CDATA[and pjh >= #{qsh}]]>	
+			</if>
+			<if test="zzh != null and '' != zzh">
+			<![CDATA[and pjh <= #{zzh}]]>	
+			</if>
+		</where>
+	<![CDATA[ order by bm,pjh]]>
+	</select>
+    
+		
+	<!-- 保存领用票据信息 -->
+	<update id="save" parameterType="java.util.Map">
+	<![CDATA[
+		update ReceiptInfoM set sfqy ='1',usepart = #{userid} 
+		where bm = #{bm} and pjh>=#{qsh} and pjh<=#{zzh}
+	]]>
+	</update>
+    
+	<!-- 获取票据是否已领用 -->
+	<select id="check" resultType="java.lang.String" parameterType="java.util.Map">
+	<![CDATA[
+		select isnull(MAX(pjh),'') pjh from ReceiptInfoM where 
+		pjh>=#{beginBillNo} and pjh <=#{endBillNo}
+		and (sfuse=1 or sfzf='1' or isnull(usepart,'')<>'')
+	]]>
+		<if test="bm != null and '' != bm">
+		<![CDATA[ and bm=#{bm} ]]>	
+		</if>
+	</select>
+	
+	<!-- 查询领用票据信息 --> 
+	<update id="clearOwner" parameterType="java.util.Map">
+	<![CDATA[
+		update ReceiptInfoM set usepart = '' where pjh >= #{qsh} and pjh <= #{zzh}
+	]]>
+		<if test="yhbh != null and '' != yhbh">
+		<![CDATA[yhbh = #{yhbh}]]>	
+		</if>
+		<if test="usepart != null and '' != usepart">
+		<![CDATA[and usepart like '%${usepart}%']]>	
+		</if>
+		<if test="xsqy != null and '' != xsqy ">
+		<![CDATA[and ISNULL(usepart,'')<>'' ]]>	
+		</if>
+	</update>
+       
+</mapper>

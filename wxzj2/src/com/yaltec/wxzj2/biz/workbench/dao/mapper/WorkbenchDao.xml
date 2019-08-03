@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.workbench.dao.WorkbenchDao">
+	<select id="findCjmx" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+			<![CDATA[
+		select a.h001,lybh,lymc,h002,h003,h005,h006,h021,h030,h031,(h030+h031) as h0301,
+		convert(char(10),h020,120) h020,h010,h013,h015,h040 from house a,(select h001,h049,h050 from house_dw) b 
+	]]>
+	<where>
+		<![CDATA[  h035='正常' and a.h001=b.h001 and h030<round((h021*0.3),2,1) and h030>0 ]]>	
+			<if test=" h049 != null and '' != h049">
+			<![CDATA[  and b.h049 like '%${h049}%' ]]>	
+			</if> 
+			<if test="xqbh != null and '' != xqbh">
+			<![CDATA[and lybh in (select lybh from SordineBuilding where xqbh like '%${xqbh}%')]]>	
+			</if> 
+			<if test="lybh != null and '' != lybh">
+			<![CDATA[and lybh like '%${lybh}%']]>	
+			</if> 
+			<if test="h013 != null and '' != h013">
+			<![CDATA[and h013 like '%${h013}%']]>	
+			</if> 
+			<if test="h040 != null and '' != h040">
+			<![CDATA[and h040 like '%${h040}%']]>	
+			</if> 
+			<if test="h015 != null and '' != h015">
+			<![CDATA[and h015 like '%${h015}%']]>	
+			</if>
+			<if test="h001 != null and '' != h001">
+			<![CDATA[and a.h001 like '%${h001}%']]>	
+			</if>
+			<![CDATA[order by lybh,h002,h003,h005]]>
+		</where>
+	</select>
+	
+	<!--定义menuMap-->
+	<resultMap id="myWorkbenchConfigMap" type="com.yaltec.wxzj2.biz.workbench.entity.MyWorkbenchConfig">
+		<result column="id" 			property="id" />		
+		<result column="loginid" 		property="loginid" />
+		<result column="mdid" 		property="mdid" />
+		<result column="isxs" 		property="isxs" />
+		<result column="pic" 	property="pic" />
+		<!-- ofType指定children集合中的对象类型  -->
+		<collection property="menu" ofType="com.yaltec.wxzj2.biz.system.entity.Menu" javaType="com.yaltec.wxzj2.biz.system.entity.Menu" column="mdid" select="getMenu">
+		</collection>
+	</resultMap>
+	<!--查找menu集合-->
+	<select id="getMenu" resultType="com.yaltec.wxzj2.biz.system.entity.Menu">
+	<![CDATA[select * from [module] where id=#{mdid,jdbcType=INTEGER} order by id ]]>
+	</select>
+	
+	<!--查找个人设置-->
+	<select id="findConfig" parameterType="java.util.Map" resultMap="myWorkbenchConfigMap">
+		<![CDATA[ select * from  myWorkbenchConfig where loginid =#{userid} 
+			and  exists(select * from permission where roleid=#{roleid} and permission.mdid=myWorkbenchConfig.mdid)
+			order by mdid
+		]]>
+	</select>
+	
+	<!--删除个人设置-->
+	<delete id="delteleByloginid" parameterType="String">
+		<![CDATA[ delete from  myWorkbenchConfig where loginid =#{loginid} ]]>
+	</delete>
+	
+	<!--个人添加所有的二级菜单-->
+	<insert id="insertConfig" parameterType="com.yaltec.wxzj2.biz.workbench.entity.MyWorkbenchConfig"> 
+		<![CDATA[ insert into myWorkbenchConfig(id,loginid,mdid,isxs,pic) values(NEWID(),#{loginid},#{mdid},#{isxs},#{pic}) ]]>
+	</insert>
+	
+	<!--获取所有工作台选择的图片-->
+	<select id="getMyWorkbenchPic" resultType="com.yaltec.wxzj2.biz.workbench.entity.MyWorkbenchPic">
+		<![CDATA[select * from [myWorkbenchPic] order by id ]]>
+	</select>
+	
+	<!--查询个人设置后添加的权限-->
+	<select id="findOtherConfig" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.system.entity.Menu">
+		<![CDATA[ 
+			select * from module where parentId<>0 and id in (
+				select mdid from permission where roleid=#{roleid} and 
+				not exists(select * from myWorkbenchConfig where loginid=#{userid} and mdid=permission.mdid)
+				and mdid%100<>0
+			)
+		]]>
+	</select>
+	
+	<!-- 查询催交信息-->
+	<select id="toExportCjmx" resultType="com.yaltec.wxzj2.biz.property.entity.House" 
+		 parameterType="java.util.Map" >
+		<![CDATA[
+		select a.h001,lybh,lymc,h002,h003,h005,h006,h021,h030,h031,(h030+h031) as h0301,
+		convert(char(10),h020,120) h020,h010,h013,h015,h040 from house a,(select h001,h049,h050 from house_dw) b 
+		]]>
+		<where>
+			<![CDATA[  h035='正常' and a.h001=b.h001 and h030<round((h021*0.3),2,1) and h030>0 ]]>	
+			<if test=" h049 != null and '' != h049">
+			<![CDATA[  and b.h049 like '%${h049}%' ]]>	
+			</if> 
+			<if test="xqbh != null and '' != xqbh">
+			<![CDATA[and lybh in (select lybh from SordineBuilding where xqbh like '%${xqbh}%')]]>	
+			</if> 
+			<if test="lybh != null and '' != lybh">
+			<![CDATA[and lybh like '%${lybh}%']]>	
+			</if> 
+			<if test="h013 != null and '' != h013">
+			<![CDATA[and h013 like '%${h013}%']]>	
+			</if> 
+			<if test="h040 != null and '' != h040">
+			<![CDATA[and h040 like '%${h040}%']]>	
+			</if> 
+			<if test="h015 != null and '' != h015">
+			<![CDATA[and h015 like '%${h015}%']]>	
+			</if>
+			<if test="h001 != null and '' != h001">
+			<![CDATA[and a.h001 like '%${h001}%']]>	
+			</if>
+			<![CDATA[order by lybh,h002,h003,h005]]>
+		</where>
+	</select>
+</mapper>

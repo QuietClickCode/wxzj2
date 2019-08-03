@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.RoleDao">
+	
+	<!-- 查询所有角色信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.system.entity.Role">
+	<![CDATA[select * from role where mc like '%${mc}%' order by bm]]>
+	</select>
+	
+	<!-- 根据mc获取角色信息-->
+	<select id="findByMc" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Role">
+		<![CDATA[select * from role where mc=#{mc}]]>
+	</select>
+	
+	<!-- 根据bm获取角色信息-->
+	<select id="findByBm" parameterType="String" resultType="com.yaltec.wxzj2.biz.system.entity.Role">
+		<![CDATA[select * from role where bm=#{bm}]]>
+	</select>
+	
+	<!-- 根据bm名称获取角色编码-->
+	<select id="findByBmMc" parameterType="com.yaltec.wxzj2.biz.system.entity.Role" resultType="String">
+		<![CDATA[SELECT bm FROM role WHERE bm<>#{bm}  AND mc=#{mc}]]>
+	</select>
+	
+	<!-- 修改角色信息-->
+	<update id="update" parameterType="com.yaltec.wxzj2.biz.system.entity.Role">
+		<![CDATA[update Role set mc=#{mc},bz=#{bz},sfqy=#{sfqy} where bm=#{bm}]]>
+	</update>
+	
+	<!--添加角色信息-->
+	<insert id="add" parameterType="com.yaltec.wxzj2.biz.system.entity.Role">
+		<![CDATA[insert into role (bm,mc,bz,sfqy) values(#{bm},#{mc},#{bz},#{sfqy})]]>
+	</insert>
+	
+	<!--查询所有模块-->
+	<select id="findTree" resultType="com.yaltec.wxzj2.biz.system.entity.ZTree" parameterType="String">
+	<![CDATA[	
+		SELECT a.id,a.modl_name as name,a.parentId as pid,'1' as status from module a, permission b 
+		where a.id=b.mdid and b.roleid=#{roleid}
+		union 
+		select id,modl_name as name,parentId as pid,'0' as status from module 
+		where id not in (SELECT mdid FROM permission where roleid=#{roleid})
+	]]>
+	</select>
+
+	<!-- 删除系统角色已授权的权限 -->
+	<delete id="deletePermission" parameterType="String" >
+		<![CDATA[delete from permission where roleid=#{bm}]]>
+	</delete>
+	
+	<!-- 保存系统角色权限 -->
+	<insert id="savePermission" parameterType="java.util.List">
+		insert into permission values
+		<foreach collection="list" item="item" index="index" separator=",">
+        	(#{item.mdid},#{item.roleid})
+		</foreach>
+	</insert>
+	
+	<!--支取走流程-->
+	<select id="moduleDraw" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			 {call p_ModuleDraw(
+			 	#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+			)}
+		]]>
+	</select>
+	
+</mapper>

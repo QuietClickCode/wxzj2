@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.TransferALDao">
+
+	<!-- 销户划拨查询-->
+	<select id="queryTransferAL" parameterType="java.util.Map" resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyLogout">
+	<![CDATA[ select DISTinct b.z011 as bm,b.z008 as BusinessNO,a.nbhdcode,a.nbhdname,a.bldgcode,a.bldgname,a.sqrq,b.h001,c.* 
+		from SordineApplDraw a,SordineDrawForRe b,house c ]]> 
+		<where>
+			<![CDATA[ and a.bm=b.z011 and b.h001=c.h001 and ltrim(rtrim(a.slzt))='正常受理' 
+		 	and ltrim(rtrim(a.hbzt))='允许划拨'  and a.status = #{cxlb}  and a.sqrq <= #{sqsj} ]]>
+			<if test="xqbm != null and '' != xqbm">
+			<![CDATA[and a.nbhdcode =#{xqbm}]]>	
+			</if>
+			<if test="lybh != null and '' != lybh">
+			<![CDATA[and a.bldgcode =#{lybh}]]>	
+			</if>
+			<if test="h001 != null and '' != h001">
+			<![CDATA[and b.h001 =#{h001}]]>	
+			</if>
+		</where>
+	</select>
+	
+	<!-- 结算利息,并返回数据(销户划拨)-->
+    <select id="queryTransferAL_LXJS" parameterType="java.util.Map" statementType="CALLABLE"
+        resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyLogout">
+        <![CDATA[ 
+            {call p_SordinefdxhInterest(
+                #{BusinessNO,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xhrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+       <!-- 返回申请-->
+    <select id="returnReviewAL" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[
+            {call P_SordineLogoutPass(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{slzt,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{status,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN},
+                #{hbzt,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sj,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{reson,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!--  销户日期不能小于该房屋最后一笔的交款日期（销户划拨保存前检查） -->
+    <select id="checkForsaveTransferAL" resultType="java.lang.String"
+        parameterType="java.util.Map">
+        <![CDATA[
+            select top 1 w015 from SordinePayToStore where h001 in 
+            (select h001 from SordineDrawForRe where z008 =#{BusinessNO}) and convert(varchar(10),w015,120) > #{xhrq}
+        ]]>
+    </select>
+    
+     <!-- 保存销户划拨 -->
+    <update id="saveTransferAL" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[ 
+            {call P_SordineOwnerTransfer(
+                #{BusinessNO,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xhrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{pjh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </update>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.comon.dao.CustomerInfoDao">
+	
+	<!-- 获取客户单位全称 -->
+	<select id="getCustomerName" resultType="java.lang.String">
+	<![CDATA[ select  top 1 r001 from MYreg order by bm ]]>  
+	</select>
+	
+	<!-- 获取上次非税上报导出的票据批次号 -->
+	<select id="getLastExpRegNo" resultType="java.lang.String">
+	<![CDATA[ 
+		select MAX(a.regNo) from (select MAX(pjh) pjh,regNo from ReceiptInfoM 
+		where isnull(batchNo,'')<>'' group by regNo) a 
+	]]>  
+	</select>
+	
+	<!-- 获取财物月度 -->
+	<select id="getFinanceMonth" resultType="java.lang.String">
+	<![CDATA[ select top 1 convert(varchar(10), zwdate, 120) zwdate from SordineAnnual ]]>  
+	</select>
+	
+</mapper>

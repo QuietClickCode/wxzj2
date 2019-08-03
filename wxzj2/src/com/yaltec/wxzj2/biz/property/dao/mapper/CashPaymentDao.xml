@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.property.dao.CashPaymentDao">
+	<select id="findByH001" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.CashPayment">
+	<![CDATA[
+		if exists (select * from house_dw where h001=#{h001} and isnull(h001_house,'')=#{h001})
+		begin
+			select b.h050 skr,e.bm yhbh,e.mc yhmc,d.bankno,'维修资金' zjxm,'人民币' bz,a.h021,a.h001 
+			from house a,house_dw b,SordineBuilding c,Assignment d,SordineBank e where
+			a.h001=b.h001_house and b.lybh=c.lybh and b.h049=d.bm and d.bankid=e.bm and a.h001=#{h001}
+		end
+		else
+		begin
+			select '' h001
+		end
+	]]>
+	</select>
+
+</mapper>

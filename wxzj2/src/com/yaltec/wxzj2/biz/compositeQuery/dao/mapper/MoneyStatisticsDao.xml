@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.compositeQuery.dao.MoneyStatisticsDao">
+	
+	
+	<!--资金统计报表查询返回map-->
+	<resultMap id="MoneyStatisticsMap" type="com.yaltec.wxzj2.biz.compositeQuery.entity.MoneyStatistics">
+		<result column="dwmc" 	    property="dwmc" />
+		<result column="lymc" 	    property="lymc" />
+		<result column="lybh" 		property="lybh" />
+		<result column="zmj" 		property="zmj" />
+		<result column="zhs" 		property="zhs" />
+		<result column="zjkje" 		property="zjkje" />
+		<result column="yjmj" 		property="yjmj" />
+		<result column="yjhs" 		property="yjhs" />
+		<result column="yjje" 		property="yjje" />
+		<result column="wjmj" 		property="wjmj" />
+		<result column="wjhs" 		property="wjhs" />
+		<result column="wjje" 		property="wjje" />
+	</resultMap>
+	
+	<!--资金统计报表查询-->
+	<select id="queryMoneyStatistics" parameterType="java.util.Map" statementType="CALLABLE"
+		resultMap="MoneyStatisticsMap" >
+	    <![CDATA[  
+            {call P_QueryMoneyStatistics(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>	
+	
+	<!--资金统计报表查询 -->
+	<select id="queryMoneyStatisticsResultMap" parameterType="java.util.Map" statementType="CALLABLE"
+		resultType="java.util.Map" >
+	    <![CDATA[  
+            {call P_QueryMoneyStatistics(
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>
+
+</mapper>	

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.CheckAD1Dao">
+	
+	   <!-- 支取申请查询1 -->
+    <select id="queryApplyDraw" parameterType="java.util.Map" 
+        resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyDraw">
+        <![CDATA[
+            {call P_ApplyDrawBYZTQ_BS(
+                #{dwlb,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{dwbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xmbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{xqbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sqsj,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{zt,javaType=java.lang.String,jdbcType=SMALLINT,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+     <!-- 获取支取审核意见 -->
+    <select id="getOpinionByBm" resultType="com.yaltec.wxzj2.biz.draw.entity.ApplyDraw">
+        <![CDATA[
+            select isnull((select top 1 LeaderOpinion from TMaterialsDetail where ApplyNO=bm and ISNULL(BusinessNO,'')<>''),'') LeaderOpinion,
+            	* from SordineApplDraw where bm = #{bm}
+        ]]>
+    </select>
+    
+     <!-- 执行sql语句-->
+    <update id="execute" parameterType="java.util.Map">
+      <![CDATA[  
+      		${sqlstr}
+       ]]>
+    </update>
+    
+     <!-- 根据 申请编号 查询支取分摊明细-->
+    <select id="OpenQryDrawForRe" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+        <![CDATA[
+            {call P_ZQDetailByApplyNO(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{bl,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 支取初审-返回支取申请 -->
+    <update id="returnCheckAD1" parameterType="java.util.Map">
+       <![CDATA[
+        update SordineApplDraw set status = #{status}, TrialRetApplyReason = #{trialRetApplyReason} where bm = #{bm}
+       ]]>
+    </update>
+    
+</mapper>

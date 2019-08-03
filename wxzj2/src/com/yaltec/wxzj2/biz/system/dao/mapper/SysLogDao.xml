@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.system.dao.SysLogDao">
+	
+	<!-- 查询所有系统日志信息-->
+	<select id="findAll" parameterType="java.util.Map" resultType="com.yaltec.comon.log.entity.Log">
+	<![CDATA[ select * from MYsyslog where convert(varchar(10),operatdate,120)>=convert(varchar(10),#{begindate},120)
+		and convert(varchar(10),operatdate,120)<=convert(varchar(10),#{enddate},120) 
+	]]>
+		<if test="userid != null and '' != userid">
+		<![CDATA[and userid=#{userid}]]>	
+		</if>
+	<![CDATA[ order by operatdate desc]]>		
+	</select>
+	
+	<!-- 批量保存日志记录 -->
+	<insert id="batchAdd" parameterType="java.util.List">
+		insert into MYsyslog(id,menu,operate,action,params,userid,username,operatdate) values
+		<foreach collection="list" item="item" index="index" separator=",">
+        	(newid(),#{item.menu},#{item.operate},#{item.action},#{item.params},#{item.userid},#{item.username},#{item.operatdate})
+		</foreach>
+	</insert>
+	
+	<!-- 根据ID查询日志详情-->
+	<select id="find"  parameterType="String" resultType="com.yaltec.comon.log.entity.Log">
+		<![CDATA[select * from MYsyslog where id=#{id}]]>
+	</select>
+</mapper>

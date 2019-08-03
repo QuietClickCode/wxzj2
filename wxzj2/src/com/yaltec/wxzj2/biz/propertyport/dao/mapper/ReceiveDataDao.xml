@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.propertyport.dao.ReceiveDataDao">
+    
+    <!-- 产权接口-数据接收-项目信息查询   -->
+    <select id="queryPortReceiveDataP" parameterType="java.util.Map" resultType="java.util.Map">
+        <![CDATA[
+	    	select distinct top 1000 d.F_NAME xmmc,d.FID xmbh,d.F_LOCATION
+	    	from Port_NeighBourHood a,Port_Building b,Port_House c,DFJ_PROJECT d
+			where a.F_PROJECT_ID=b.F_PROJECT_ID and b.F_BUILDING_ID=c.F_BUILDING_ID and a.F_PARENT_ID=d.FID 
+			and ISNULL(a.F_PROJECT_NAME,'')<>'' and ISNULL(a.F_LOCATION,'') like '%'+#{address}+'%' 
+			and ISNULL(a.F_PROJECT_NAME,'') like '%'+#{xqmc}+'%' and ISNULL(d.F_NAME,'')  like '%'+#{xmmc}+'%'
+			and ISNULL(c.F_OWNER,'') like '%'+#{h013}+'%' and ISNULL(b.kfgsmc,'') like '%'+#{kfgsmc}+'%'
+			and d.fid not in (select isnull(hbid,'') from project)
+			order by d.F_NAME
+        ]]>
+    </select>
+    
+    <!-- 产权接口-数据接收-小区信息查询   -->
+    <select id="queryPortReceiveDataN" parameterType="java.util.Map" resultType="java.util.Map">
+        <![CDATA[
+        	select distinct top 1000 c.tbid,d.F_NAME xmmc,c.F_PROJECT_ID,c.F_PROJECT_NAME,c.xqbh,c.xqmc,c.F_LOCATION,c.F_UPDATEED 
+			from Port_House a left join Port_Building b on a.F_BUILDING_ID=b.F_BUILDING_ID left join Port_NeighBourHood c
+			on b.F_PROJECT_ID=c.F_PROJECT_ID left join DFJ_PROJECT d on c.F_PARENT_ID=d.fid 
+			where ISNULL(c.F_PROJECT_NAME,'')<>'' and ISNULL(c.F_LOCATION,'') like '%'+#{address}+'%' 
+			and ISNULL(c.F_PROJECT_NAME,'') like '%'+#{xqmc}+'%' and ISNULL(a.F_OWNER,'') like '%'+#{h013}+'%' 
+			and ISNULL(b.kfgsmc,'') like '%'+#{kfgsmc}+'%' and ISNULL(d.F_NAME,'')  like '%'+#{xmmc}+'%'
+        ]]>
+    </select>
+    <!--
+    select distinct a.tbid,d.F_NAME xmmc,a.F_PROJECT_ID,a.F_PROJECT_NAME,a.xqbh,a.xqmc,a.F_LOCATION,a.F_UPDATEED 
+			from (
+				select distinct a.tbid,a.F_PROJECT_ID,a.F_PROJECT_NAME,a.xqbh,a.xqmc,a.F_LOCATION,a.F_UPDATEED,a.F_PARENT_ID
+				from Port_NeighBourHood a,Port_Building b,Port_House c,DFJ_PROJECT d
+				where a.F_PROJECT_ID=b.F_PROJECT_ID and b.F_BUILDING_ID=c.F_BUILDING_ID 
+				and ISNULL(a.F_PROJECT_NAME,'')<>'' and ISNULL(a.F_LOCATION,'') like '%'+#{address}+'%' 
+				and ISNULL(a.F_PROJECT_NAME,'') like '%'+#{xqmc}+'%' 
+				and ISNULL(c.F_OWNER,'') like '%'+#{h013}+'%' and ISNULL(b.kfgsmc,'') like '%'+#{kfgsmc}+'%'
+			) a left join DFJ_PROJECT d on a.F_PARENT_ID=d.FID where ISNULL(d.F_NAME,'')  like '%'+#{xmmc}+'%'
+			order by a.F_PROJECT_ID desc,a.F_PROJECT_NAME
+			
+			
+			
+			
+    
+    select distinct a.tbid,d.F_NAME xmmc,a.F_PROJECT_ID,a.F_PROJECT_NAME,a.xqbh,a.xqmc,a.F_LOCATION,a.F_UPDATEED
+	    	from Port_NeighBourHood a,Port_Building b,Port_House c,DFJ_PROJECT d
+			where a.F_PROJECT_ID=b.F_PROJECT_ID and b.F_BUILDING_ID=c.F_BUILDING_ID and a.F_PARENT_ID=d.FID 
+			and ISNULL(a.F_PROJECT_NAME,'')<>'' and ISNULL(a.F_LOCATION,'') like '%'+#{address}+'%' 
+			and ISNULL(a.F_PROJECT_NAME,'') like '%'+#{xqmc}+'%' and ISNULL(d.F_NAME,'')  like '%'+#{xmmc}+'%'
+			and ISNULL(c.F_OWNER,'') like '%'+#{h013}+'%' and ISNULL(b.kfgsmc,'') like '%'+#{kfgsmc}+'%'
+			order by a.F_PROJECT_ID desc,a.F_PROJECT_NAME
+    -->
+    
+    <!-- 产权接口-数据接收-楼宇信息查询 -->
+    <select id="queryPortReceiveDataB" parameterType="java.util.Map" resultType="java.util.Map">
+    	<![CDATA[
+	    	select distinct a.* from Port_Building a,ass_hb_bd b,Port_House c  where
+			b.type='01' and a.F_PROJECT_ID=b.hbid and a.F_BUILDING_ID=c.F_BUILDING_ID 
+			and b.bdid=#{xqbh} and ISNULL(a.F_BUILDING_NAME,'') like '%'+#{lymc}+'%' 
+			and ISNULL(c.F_OWNER,'') like '%'+#{h013}+'%'
+			order by a.F_BUILDING_NAME,a.F_BUILDING_ID
+        ]]>
+    </select>
+    
+    <!-- 产权接口-数据接收-房屋信息查询 -->
+    <select id="queryPortReceiveDataH" parameterType="java.util.Map" resultType="java.util.Map">
+    	<![CDATA[
+	    	select b.tbid,b.h001,b.F_BUILDING_ID,b.F_BUILDING_NAME,b.F_HOUSE_NO,b.F_UNIT,b.F_FLOOR,b.F_ROOM_NO,
+	    		b.F_BUILD_AREA,b.F_OWNER,b.F_CARD_NO,b.F_LOCATION,b.F_DIFFERENT_DETAIL,b.F_UPDATE_TYPE,b.F_STATUS,
+	    		b.F_CHECKED,b.F_OPERATORID,b.F_OPERATOR,CONVERT(VARCHAR(19),b.F_OPERATE_TIME,120) F_OPERATE_TIME,
+	    		b.F_CHECKER_ID,b.F_CHECKER_NAME,b.F_CHECK_TIME  
+			from ass_hb_bd a,Port_House b,SordineBuilding c where a.type='02' AND b.F_UPDATE_TYPE=#{type}
+			and a.hbid=b.F_BUILDING_ID and a.bdid=c.lybh and b.F_STATUS=#{status}
+        ]]>
+    	<if test="xqbh != null and '' != xqbh">
+			<![CDATA[
+				and c.xqbh=#{xqbh} 
+			]]>	
+		</if>
+    	<if test="lybh != null and '' != lybh">
+			<![CDATA[
+				and c.lybh=#{lybh} 
+			]]>	
+		</if>
+    	<if test="h013 != null and '' != h013">
+			<![CDATA[
+				AND ISNULL(b.F_OWNER,'') like '%'+#{h013}+'%'
+			]]>	
+		</if>
+    	<![CDATA[
+			order by b.F_BUILDING_NAME,b.F_UNIT,b.F_FLOOR,b.F_ROOM_NO
+        ]]>
+    </select>
+    
+    <!-- 产权接口-数据接收- 房屋对照（本地与回备）查询 -->
+    <select id="queryContrast" parameterType="java.lang.String" resultType="java.util.Map">
+    	<![CDATA[
+    		select a.h001,a.h002,b.F_UNIT,a.h003,b.F_FLOOR,a.h005,b.F_ROOM_NO,a.h006,b.F_BUILD_AREA,a.h013,
+    		b.F_OWNER,a.h015,b.F_CARD_NO,a.h010,b.F_TOTAL,a.h037,b.F_HOUSE_NO,a.h047,b.F_LOCATION,
+    		a.h052,b.h062,a.h053,b.h063 from house_dw a,Port_House b 
+			where a.h001=b.h001 and a.h051=b.FID and b.tbid=#{tbid}
+        ]]>
+    </select>
+    
+    <!-- 产权接口数据接收(小区数据关联) -->
+    <update id="mergeXQ" parameterType="java.util.Map">
+        update Port_NeighBourHood set 
+        xqbh=#{bm},xqmc=#{mc},F_STATUS='3',F_UPDATEED='1',f_operatorid=#{userid},
+        f_operator=#{username},F_OPERATE_TIME=convert(varchar(19),getdate(),120) 
+        where tbid=#{xh}
+        
+        delete from ass_hb_bd where type='01' and hbid =(select F_PROJECT_ID from Port_NeighBourHood where tbid=#{xh})
+        
+        insert into ass_hb_bd(type,bdid,bdmc,hbid,hbmc,sys_remark)
+        select '01',#{bm},#{mc},F_PROJECT_ID,F_PROJECT_NAME,'小区' from Port_NeighBourHood where tbid=#{xh}
+        
+    </update>
+    
+    
+    <!-- 产权接口数据接收(楼宇数据关联) -->
+    <update id="mergeLY" parameterType="java.util.Map">
+		UPDATE Port_Building SET xqbh=a.xqbh,xqmc=a.xqmc,lybh=a.lybh,lymc=a.lymc,
+		F_STATUS='3',F_UPDATEED='1',F_OPERATE_TIME=CONVERT(VARCHAR(19), GETDATE(), 120),
+		F_OPERATORID=#{userid},F_OPERATOR=#{username} from SordineBuilding a
+		WHERE tbid=#{xh} and a.lybh=#{lybh}
+		
+		delete from ass_hb_bd where type='02' and hbid =(select F_BUILDING_ID from Port_Building where tbid=#{xh})
+		
+        insert into ass_hb_bd(type,bdid,bdmc,hbid,hbmc,sys_remark)
+        select '02',lybh,lymc,F_BUILDING_ID,F_BUILDING_NAME,'楼宇' from Port_Building where tbid=#{xh}
+    </update>
+    
+	<!-- 产权接口新建项目  -->
+	<insert id="addXM" parameterType="java.util.Map">
+		<![CDATA[
+			insert into Project(bm,mc,address,propertyHouse,propertyHouseArea,propertyOfficeHouse,
+			propertyOfficeHouseArea,publicHouse,publicHouseArea,districtID,district,unitCode,unitName,bldgNO,
+			payableFunds,paidFunds,other,remarks,recordDate,nbhdBak,HBID)
+			 values(#{bm},#{mc},#{address},#{propertyHouse},#{propertyHouseArea},#{propertyOfficeHouse},
+			 #{propertyOfficeHouseArea},#{publicHouse},#{publicHouseArea},#{districtID},#{district},
+			 #{unitCode},#{unitName},#{bldgNO},#{payableFunds},#{paidFunds},#{other},
+			 #{remarks},#{recordDate},#{nbhdBak},#{HBID})
+		]]>
+	</insert>
+	
+	<!-- 产权接口新建小区   -->
+	<select id="addXQ" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_HandlePort_NeighBourHood_BY_TBID(
+				#{xh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},
+				#{mc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{adress,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{propertyHouse,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{propertyOfficeHouse,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{districtID,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{district,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{publicHouse,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{propertyHouseArea,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{propertyOfficeHouseArea,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{publicHouseArea,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{unitCode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{unitName,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{bldgNO,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{payableFunds,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{paidFunds,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{other,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{remarks,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{recordDate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{nret,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+    
+	<!-- 产权接口新建楼宇   -->
+	<select id="addLY" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_HandlePort_Building_BY_TBID(
+				#{xh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=OUT},
+				#{lymc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xqmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{kfgsbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{kfgsmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{wygsbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{wygsmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{ywhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{ywhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{fwxzbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{fwxz,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{fwlxbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{fwlx,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lyjgbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lyjg,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{address,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{totalArea,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{totalCost,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{protocolPrice,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{unitNumber,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{layerNumber,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{houseNumber,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{useFixedYear,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{completionDate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{nret,javaType=java.lang.Integer,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+    
+	<!-- 产权接口提交新建房屋   -->
+	<select id="receiveFW" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_PPort_ReceiveFW(
+				#{sfxh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				
+				#{h049,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h050,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h044,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h045,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h022,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h023,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h017,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h018,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{h012,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{nret,javaType=java.lang.Integer,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+    
+    <select id="exec" resultType="java.lang.Integer" parameterType="java.util.Map">
+        <![CDATA[
+            ${sqlstr}
+        ]]>
+    </select>
+    
+    <!-- 同步产权接口变更的房屋   -->
+	<select id="syncFW" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+			{call P_PPort_SyncFW(
+				#{sfxh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{nret,javaType=java.lang.Integer,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+</mapper>

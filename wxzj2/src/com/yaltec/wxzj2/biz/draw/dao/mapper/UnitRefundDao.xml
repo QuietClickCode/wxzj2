@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.UnitRefundDao">
+
+
+	<!-- 查询单位退款信息 -->
+	<select id="queryUnitRefund" resultType="com.yaltec.wxzj2.biz.draw.entity.UnitRefund" parameterType="java.util.Map">
+		<![CDATA[
+			select * from DeveloperComDraw where 
+			convert(varchar(10),ywrq,120)>=convert(varchar(10),#{begindate},120)
+			and convert(varchar(10),ywrq,120)<=convert(varchar(10),#{enddate},120)
+		]]>
+		<if test="dwbm != null and '' != dwbm">
+			<![CDATA[ and dwbm =#{dwbm}]]>	
+		</if>
+		<![CDATA[ order by ywrq]]>  		
+	</select>
+	
+	<!-- 获取单位累交、累支金额 -->
+	<select id="getUnitLjAndLzje" resultType="com.yaltec.wxzj2.biz.draw.entity.UnitRefund" parameterType="String">
+	<![CDATA[   
+		select (select isnull(sum(jkje),0) as jkze from DeveloperComPay where dwbm=#{dwbm} and isnull(pzbh,'')<>'' ) ljje,
+		(select isnull(sum(tkje),0) as zqze from DeveloperComDraw where dwbm=#{dwbm} and isnull(pzbh,'')<>'' ) lzje
+	]]>
+	</select>
+	
+	<!-- 在单位进行支取前判断该单位是否存在未入账业务 -->
+	<select id="isExistRecordedByDW"  resultType="com.yaltec.wxzj2.biz.draw.entity.UnitRefund" parameterType="java.util.Map">
+	<![CDATA[
+		select * from DeveloperComDraw where isnull(pzbh,'')='' and dwbm=#{dwbm} and ywbh<>#{w008}
+	]]>
+	</select>
+	
+	<!--添加单位退款-->
+	<select id="saveUnitRefund" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[    
+			{call P_DeveloperRefund(
+				#{dwbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{dwmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{zybm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{zymc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{ywrq,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+				#{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{tkje,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+				#{h013,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!--根据业务编号批量删除单位退款--> 
+    <delete id="delUnitRefund" parameterType="java.util.List">
+		<![CDATA[DELETE FROM DeveloperComDraw]]>
+		<where>
+			<foreach collection="list" index="index" item="ywbh" open="(" separator="OR " close=")">
+				<![CDATA[ywbh=#{ywbh}]]>
+			</foreach>
+		</where>
+	</delete>
+	
+	
+	
+	
+</mapper>

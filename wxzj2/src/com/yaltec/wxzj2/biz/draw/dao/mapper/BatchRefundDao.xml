@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.draw.dao.BatchRefundDao">
+
+
+ <!-- 获取楼宇-根据小区编码、楼宇编码(EXT-TREE) -->
+    <select id="queryShareAD_LY" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName" parameterType="java.util.Map">
+       <![CDATA[ select lybh as bm, lymc as mc from SordineBuilding  ]]>
+       <where>
+       	<![CDATA[ xqbh = #{xqbh}]]>	
+       	<if test="lybh != null and '' != lybh">
+			<![CDATA[ and lybh = #{lybh}]]>	
+		</if>
+       </where>
+        <![CDATA[order by lybh ]]>	
+    </select>
+    
+    <!-- 获取楼宇-根据项目编码(EXT-TREE) -->
+    <select id="queryShareAD_LY2" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName" parameterType="java.util.Map">
+      <![CDATA[  select lybh as bm, lymc as mc from SordineBuilding where xqbh in (
+        	select bm from NeighBourHood where ISNULL(xmbm,'')=#{xmbm} )order by lybh
+        ]]>
+    </select>
+    
+    <!-- 获取单元-根据楼宇编码(EXT-TREE) -->
+    <select id="queryShareAD_DY" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName">
+        <![CDATA[
+            select distinct lybh as bm,h002 as mc from house where lybh=#{data} and h035='正常'  order by lybh,h002
+        ]]>
+    </select>
+    
+    <!-- 获取层数-根据楼宇编码、单元数(EXT-TREE) -->
+    <select id="queryShareAD_LC" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName" parameterType="java.util.Map">
+        <![CDATA[
+            select distinct h002 as bm,h003 as mc from house where lybh= #{lybh} and h035='正常' and h002 = #{h002} order by h002,h003
+        ]]>
+    </select>
+    
+    <!-- 获取房屋-根据楼宇编码、单元数、层数(EXT-TREE) -->
+    <select id="queryShareAD_FW" resultType="com.yaltec.wxzj2.biz.draw.entity.CodeName" parameterType="java.util.Map">
+        <![CDATA[
+            select distinct h001 as bm,h005 as mc from house 
+            where lybh=#{lybh} and h035='正常' and h002 = #{h002} and h003 = #{h003} order by h005
+        ]]>
+    </select>
+    
+    <!-- 保存批量退款-->
+    <select id="saveRefund_PL" parameterType="java.util.Map" statementType="CALLABLE">
+        <![CDATA[     
+            {call P_Refund_PL_BS(
+                #{bm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z003,jdbcType=DATE,mode=IN},
+                #{yhbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{yhmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{zph,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{kfgsbm,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{kfgsmc,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sftq,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z017,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z008,javaType=java.lang.String,jdbcType=VARCHAR,mode=INOUT},
+                #{sfbl,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z021,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{z022,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+    </select>
+    
+    <!-- 根据楼宇获取开发单位信息 -->
+    <select id="getDeveloperBylybh" resultType="com.yaltec.wxzj2.biz.property.entity.Developer">
+        <![CDATA[
+            select distinct a.* from DeveloperCompany a,SordineBuilding b where a.bm=b.kfgsbm and b.lybh= #{lybh}
+        ]]>
+    </select>
+    
+    <!-- 支取分摊明细导出查询 By 申请编号  -->
+	<select id="QryExportShareAD" resultType="com.yaltec.wxzj2.biz.draw.entity.ShareAD" parameterType="java.util.Map">
+	<![CDATA[
+		if #{lb}='1'
+		begin
+			   select bm,lymc,h001,h002,h003,h005,h006,h013,h015,h030,h031,bjye,lxye,pzje,bcpzje,isred,z001,z002,
+				z003,userid,z006 ftje,z004 zqbj,z005 zqlx,z023 zcje,h021,h023 from system_DrawBS where userid=#{userid} and bm=#{bm} ORDER BY h001,h002,h003,h005
+		end
+		else
+		begin
+			select bm,pici,lymc,case h001 when '合计' then '小计' else h001 end h001,h002,h003,h005,h006,h013,h015,h030,h031,bjye,lxye,pzje,bcpzje,isred,z001,z002,
+				z003,userid,z006 ftje,z004 zqbj,z005 zqlx,z023 zcje from system_DrawBS2 where userid=#{userid} and bm=#{bm} 
+			union all 
+			select '' bm,'999' pici,'' lymc,'合计' h001,'' h002,'' h003,'' h005,sum(h006),'' h013,'' h015,sum(h030),sum(h031),sum(bjye),sum(lxye),
+				max(pzje),max(bcpzje),'' isred,'' z001,'' z002,
+				max(z003),max(userid),sum(z006) ftje,sum(z004) zqbj,sum(z005) zqlx,sum(z023) zcje from system_DrawBS2 
+			where userid=#{userid} and bm=#{bm} order by pici,h001,h002,h003,h005
+		end
+	]]>
+	</select>
+    
+</mapper>

@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+		namespace：必须与对应的接口全类名一致
+		id:必须与对应接口的某个对应的方法名一致
+	 -->
+<mapper namespace="com.yaltec.wxzj2.biz.payment.dao.PaymentDao">
+	<!-- 查询所有交款信息-->
+	<select id="findAll" resultType="com.yaltec.wxzj2.biz.payment.entity.PayToStore" >
+		select  * from SordinePayToStore order by tbid desc
+	</select>
+	<!--交款登记返回map-->
+	<resultMap id="djresultMap" type="com.yaltec.wxzj2.biz.payment.entity.PayToStore">
+		<result column="lybh" 	    property="lybh" />
+		<result column="lymc" 		property="lymc" />
+		<result column="h001" 		property="h001" />
+		<result column="h013" 		property="w012" />
+		<result column="w003" 		property="w003" />
+		<result column="w004" 		property="w004" />
+		<result column="w008" 	    property="w008" />
+		<result column="serialno" 	property="serialno" />
+		<result column="w001" 	    property="w001" />
+		<result column="w002" 	    property="w002" />
+		<result column="yhbh" 	    property="yhbh" />
+		<result column="w011" 	    property="w011" />
+		<result column="posno" 	    property="posno" />
+	</resultMap>
+	
+	<!--交款登记-房屋查询交款信息-->
+	<select id="queryPaymentDJBS" parameterType="java.util.Map"  
+		statementType="CALLABLE"
+		resultMap="djresultMap" >
+	<![CDATA[
+		 {call P_QueryPaymentDJBS(
+				#{xqbh,jdbcType=VARCHAR,mode=IN},
+				#{lybh,jdbcType=VARCHAR,mode=IN},
+				#{cxrq,jdbcType=DATE,mode=IN},
+				#{cxrqend,jdbcType=DATE,mode=IN},
+				#{cxlb,jdbcType=SMALLINT,mode=IN},
+				#{h001,jdbcType=VARCHAR,mode=IN},
+				#{w012,jdbcType=VARCHAR,mode=IN},
+				#{unitcode,jdbcType=VARCHAR,mode=IN},
+				#{result,jdbcType=SMALLINT,mode=OUT,javaType=java.lang.String}
+		  )}
+	]]>
+	</select>
+	
+	<!--根据业务编号查询-->
+	<select id="queryPaymentDJBSW008" parameterType="java.util.Map"  
+		statementType="CALLABLE"
+		resultMap="djresultMap" >
+		<![CDATA[
+			{call p_PaymentPrintBS(
+				#{qw008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{jw008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{qserialno,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{jserialno,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{sfdy,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{unitcode,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+				#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+			)}
+		]]>
+	</select>
+	
+	<!-- 检查交款摘要为‘首次交款’时该房屋是否为首次交款（保存交款登记信息之前） -->
+	<select id="checkSavePaymentReg" resultType="java.util.Map" 
+		parameterType="com.yaltec.wxzj2.biz.payment.entity.PayToStore">
+	<![CDATA[
+		select * from SordinePayToStore where h001 = #{h001} order by tbid desc
+	]]>
+	</select>
+	
+	<!--根据楼宇获取最近次交款的归集中心-->
+	<select id="getUnitcodeByLybh" parameterType="String" resultType="String" >
+		<![CDATA[
+			select top 1 b.bm  from SordinePayToStore a,Assignment b 
+			where a.yhbh=b.bankid and bm<>'00' and lybh=#{lybh} order by a.w013 desc
+		]]>
+	</select>
+	
+	<!--根据楼宇获取历史表最近次交款的归集中心-->
+	<select id="getUnitcodeByLybh_his" parameterType="String" resultType="String" >
+		<![CDATA[
+			select top 1 b.bm  from Payment_history a,Assignment b 
+			where a.yhbh=b.bankid and bm<>'00' and lybh=#{lybh} order by a.w013 desc
+		]]>
+	</select>
+	
+	<!-- 按业务编号获取归集中心 -->
+	<select id="getUnitcodeByW008" parameterType="String" resultType="String" >
+		<![CDATA[
+			select top 1 unitcode bm,unitname mc from SordinePayToStore where w008=#{w008}
+			group by unitcode,unitname
+		]]>
+	</select>
+	
+	<!--保存交款登记-->
+	<select id="add" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call P_OwnerPayBank_BS(
+			#{lybh,mode=IN,jdbcType=VARCHAR},
+			#{h001,mode=IN,jdbcType=VARCHAR},
+			#{w001,mode=IN,jdbcType=VARCHAR},
+			#{w002,mode=IN,jdbcType=VARCHAR},
+			#{w003,mode=IN,jdbcType=DATE},
+			#{w004,mode=IN,jdbcType=VARCHAR},
+			#{w011,mode=IN,jdbcType=VARCHAR},
+			#{posno,mode=IN,jdbcType=VARCHAR},
+			#{yhbh,mode=IN,jdbcType=VARCHAR},
+			#{yhmc,mode=IN,jdbcType=VARCHAR},
+			#{userid,mode=IN,jdbcType=VARCHAR},
+			#{username,mode=IN,jdbcType=VARCHAR},
+			#{w010,mode=IN,jdbcType=VARCHAR},
+			#{w008,mode=INOUT,jdbcType=VARCHAR},
+			#{serialno,mode=OUT,jdbcType=VARCHAR},
+			#{result,mode=OUT,jdbcType=SMALLINT,javaType=java.lang.String}
+		)}
+	]]>
+	</select>
+    
+	<!--查询该业务是否到账 -->
+	<select id="isToTheAccount" resultType="com.yaltec.wxzj2.biz.payment.entity.PayToStore" parameterType="java.util.Map">
+	<![CDATA[
+		select  b.* from webservice1 a,SordinePayToStore b where (a.h001=SUBSTRING(b.w008,2,5)+SUBSTRING(b.w008,8,3)  
+		or a.h001=b.h001) and CONVERT(varchar(10),a.h020,120)=CONVERT(varchar(10),b.w014,120) and b.w008=#{w008}
+		 order by tbid desc
+	]]>
+	</select>
+	
+	<!--查询该业务的打印信息 -->
+	<select id="isPrint" resultType="com.yaltec.wxzj2.biz.payment.entity.PayToStore" parameterType="java.util.Map">
+	<![CDATA[
+		select * from SordinePayToStore where w008=#{w008} and isnull(w011,'')<>''
+		
+	]]>
+	<if test="serialno != null and '' != serialno">
+		<![CDATA[ and serialno=#{serialno} ]]>	
+	</if>
+	</select>
+	
+	<!--删除一条交款信息-->
+	<select id="deleone" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		 {call p_PaymentDelBS(
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{serialno,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{w004,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{sf,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!-- 根据业务编号删除交款-->
+	<select id="delByW008" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[
+		{call p_PaymentDelAllBS(
+			#{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{sf,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+			#{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+		)}
+	]]>
+	</select>
+	
+	<!--修改交款pos号-->
+	<select id="eidtPoshPaymentReg" parameterType="java.util.Map" statementType="CALLABLE">
+	<![CDATA[    
+            {call P_eidtPoshPaymentReg(
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{w003,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{w004,javaType=java.lang.String,jdbcType=DECIMAL,mode=IN},
+                #{posno,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>	
+	</select>
+	
+	<!--修改交款票据号-->
+	<select id="eidtPJPaymentReg" parameterType="java.util.Map" statementType="CALLABLE">
+		<![CDATA[
+            {call P_eidtPJPaymentReg(
+                #{h001,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{w008,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{w013,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{w011,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{fingerprintData,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{regNo,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{username,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{result,javaType=java.lang.String,jdbcType=SMALLINT,mode=OUT}
+            )}
+        ]]>
+	</select>
+	
+	<!--批量交款查询-->
+	<select id="queryBankJinZhangChan" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="com.yaltec.wxzj2.biz.payment.entity.ResultPljk" >
+		 <![CDATA[
+            {call P_queryBankJinZhangChan(
+                #{bdate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{edate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sfrz,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{je,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+	<!--批量交款查询 不分页-->
+	<select id="queryBankJinZhangChanNonsort" parameterType="java.util.Map" statementType="CALLABLE"
+			resultType="java.util.Map" >
+		 <![CDATA[
+            {call P_queryBankJinZhangChan(
+                #{bdate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{edate,javaType=java.lang.String,jdbcType=DATE,mode=IN},
+                #{xqbh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{lybh,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{flag,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{sfrz,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{je,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN},
+                #{userid,javaType=java.lang.String,jdbcType=VARCHAR,mode=IN}
+            )}
+        ]]>
+	</select>
+	
+	<!--查询通知书信息-->
+	 <select id="getPaymentRegTZS" resultType="com.yaltec.wxzj2.biz.payment.entity.PaymentRegTZS"
+             parameterType="java.util.Map">
+        <![CDATA[
+            select top 1 a.lybh,a.lymc+'等' lymc,a.unitcode,a.unitname,b.bankno,
+            a.yhbh,a.yhmc,convert(varchar(10),getdate(),120) today,
+            convert(varchar(10),a.w013,120) w013,(select sum(w006) from SordinePayToStore where w008=#{w008} )w006,
+            (select count(h001) from SordinePayToStore where w008=#{w008} ) ct from 
+            SordinePayToStore a,Assignment b where w008=#{w008} and a.unitcode=b.bm
+        ]]>
+    </select>
+    
+    <!--打印通知书明细-->
+     <select id="getPaymentRegTZSMX" resultType="com.yaltec.wxzj2.biz.payment.entity.PdfPaymentPegTZSMX"
+             parameterType="java.util.Map">
+        <![CDATA[
+            select a.h001,a.h002,a.h003,a.h005,a.h013,a.h015,a.lymc,a.h050,a.h047,a.h006,d.w006 h021,b.bankno,a.h022,c.xm+'|'+convert(varchar(10),c.xs) h023,
+            c.xs,c.xm,convert(varchar(10),getdate(),120) today,(select mc from SordineBank where b.bankid=bm) as yhmc 
+            from house_dw a,Assignment b,(select bm,mc,xs,(case xm when '00' then '房款' when '01' then '建筑面积' end) as xm from Deposit) c,SordinePayToStore d
+             where d.w008=#{w008} and a.h001=d.h001 and a.h049=b.bm and a.h022=c.bm order by a.lybh,a.h002,a.h003,a.h005
+        ]]>
+    </select>
+    
+    <!-- 打印房屋信息-->
+     <select id="pdfPaymentReg" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+     	 <![CDATA[
+        select h001,lymc,h002,h003,h005,h006,h009,h010,h013,h015,h045,h019,(select xs from Deposit where bm=h022) as h022,
+	        (select (case xm when '00' then '房款' when '01' then '建筑面积' end)+'*'+convert(varchar(20),xs) from Deposit where bm=house.h022 ) h023,
+	        h017,(lymc+' '+h002+'单元'+h003+'层'+h005+'号') address 
+        from house where h001=#{h001}
+        ]]>
+    </select>
+    
+     <!-- 打印房屋信息（永川）-->
+    <select id="pdfPaymentReg_yc" parameterType="String" resultType="com.yaltec.wxzj2.biz.property.entity.House">
+     	<![CDATA[
+        select a.h001,a.lymc,a.h002,a.h003,a.h005,a.h006,a.h009,a.h010,a.h013,a.h015,a.h045,a.h019,(select xs from Deposit where bm=a.h022) as h022,a.h017,
+        (select (case xm when '00' then '房款' when '01' then '建筑面积' end)+'*'+convert(varchar(20),xs) from Deposit where bm=a.h022 ) h023,
+        REPLACE(REPLACE(REPLACE(REPLACE(b.h047,'重庆市',''),'重庆',''),'永川区',''),'永川','')+'['+b.lymc+']' address from house a,house_dw b 
+        where a.h001=b.h001 and a.h001=#{h001}
+        ]]>
+    </select>
+    
+    <!--票据库中查找找到当前房屋的票据信息-->
+    <select id="getFingerprintData" parameterType="String" resultType="com.yaltec.wxzj2.biz.bill.entity.ReceiptInfoM" >
+    	 <![CDATA[
+    	 	SELECT fingerprintData,pjh FROM ReceiptInfoM where tbid in (SELECT max(tbid) FROM ReceiptInfoM where h013=#{h001} and sfzf=0 and sfuse=1)
+    	]]>
+    </select>
+    
+     <!--根据userid获取打印设置信息 -->
+    <select id="getPrintSetInfo"  parameterType="String"  resultType="com.yaltec.wxzj2.biz.comon.entity.PrintSet2">
+    	select * from printSet where userid=#{userid}
+    </select>
+    
+	<!--获取打印现金交款凭证的信息 -->
+	<select id="getCashPayment" parameterType="String"  resultType="com.yaltec.wxzj2.biz.payment.entity.CashPayment">
+		 <![CDATA[
+        	if exists (select * from house_dw where h001=#{h001} and isnull(h001_house,'')=#{h001})
+			begin
+				select b.h050 skr,e.bm yhbh,e.mc yhmc,d.bankno,'维修资金' zjxm,'人民币' bz,a.h021,a.h001 
+				from house a,house_dw b,SordineBuilding c,Assignment d,SordineBank e where
+				a.h001=b.h001_house and b.lybh=c.lybh and b.h049=d.bm and d.bankid=e.bm and a.h001=#{h001}
+			end
+			else
+			begin
+				select '' h001
+			end
+        ]]>
+	</select>
+	
+	 <!--更新票据状态为已用，使用人，业主姓名 等信息1 -->	 
+    <update id="eidtW011_01" parameterType="java.util.Map">
+    	<![CDATA[
+        update ReceiptInfoM set fingerprintData=#{fingerprintData},sfuse=1,username=#{username},w013=convert(varchar(10),#{w013},120),h013=#{h001} 
+        where pjh=#{w011} and sfqy=1 and regNo=#{regNo}
+        ]]>
+    </update>
+    
+    <!-- 修改交款信息的票据号1 -->
+    <update id="eidtW011PaymentReg_01" parameterType="java.util.Map">
+    	<![CDATA[
+        update SordinePayToStore set w011=#{w011},regNo=#{regNo} where w008=#{w008} and h001=#{h001}
+        ]]>
+    </update>
+    
+    <!-- 修改交款信息的票据号2 -->
+    <update id="eidtW011PaymentReg_02" parameterType="java.util.Map">
+    	<![CDATA[
+        update payment_history set w011=#{w011},regNo=#{regNo} where w008=#{w008} and h001=#{h001}
+        ]]>
+    </update>
+    
+    <!-- 修改交款信息的票据号3 -->
+    <update id="eidtW011PaymentReg_03" parameterType="java.util.Map">
+    	<![CDATA[
+        update webservice3 set sjh=#{w011} where convert(varchar(10),h020,120)=convert(varchar(10),#{w013},120) and h001=#{h001}
+        ]]>
+    </update>    
+    
+     <!--根据楼宇获取未打印数据-->
+   <select id="getNotPrintByLybh" parameterType="String" resultType="int">
+   	<![CDATA[ 
+   		select count(*)id from SordinePayToStore where lybh=#{lybh} and  w010 in('DR','GR') and isnull(w011,'')=''
+   			and not exists(select * from webservice3  where h001=SordinePayToStore.h001 )
+   	 ]]>   	
+   </select>
+   
+    <!--根据w008获取该笔业务的交款房屋数量-->
+   <select id="getNumByW008" parameterType="String" resultType="int">
+   	<![CDATA[ select count(*)id from SordinePayToStore where w008=#{w008}]]>   	
+   </select>
+   
+    <!--获取缴款的房屋总的交款条数-->
+   <select id="getPayNumByH001" parameterType="java.util.Map" resultType="int">
+   	<![CDATA[ 
+select COUNT(h001)h001 from SordinePayToStore where  h001 in (
+select h001 from SordinePayToStore where w008=#{w008} and serialno like  #{serialno}+'%' 
+) ]]>  	
+   </select>
+   
+</mapper>
